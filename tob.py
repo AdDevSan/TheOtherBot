@@ -187,4 +187,4 @@ async def role(ctx,*,role):
     await ctx.member.add_roles(x)
 '''
 #--------------------------------------------------------
-client.run('NzU5MDA2OTE4NTYyOTM4ODkx.X23ORw.TlrSezdD22Gx36GgM6zP4Fo7az0')
+client.run('NzU5MDA2OTE4NTYyOTM4ODkx.X23ORw.byOspn9OpCpywwY7MbkhU0EwsJM')
