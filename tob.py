@@ -1,5 +1,7 @@
 import discord
 from discord.ext import commands
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 
 
 
@@ -81,91 +83,88 @@ async def blieonwefj(ctx):
     await m.add_reaction('3️⃣')
     await m.add_reaction('4️⃣')
 
-Course_Roles = [
+courseRoles = [
     ['Accounting'],
 
-    ['Actuarial',
-     "Actuarial Sciences", "Actuarial Science","ActuarialScience"],
+    ['Actuarial'],
 
     ['Architecture'],
 
-    ['AppMath',
-     "Applied Mathematics", "App Mathematics", "AppliedMath", "AppliedMathematics", "AppMathematics"],
+    ['AppMath'],
 
-    ['AppChemistry',
-     "Applied Chemistry", "AppChem", "AppliedChemistry"],
+    ['AppChemistry'],
 
-    ['BioInformatics',
-     "Bio Informatics"],
+    ['BioInformatics'],
 
-    ['Biology',
-     "Bio"],
+    ['Biology'],
 
-    ['ComSci',
-     "Computer Science"],
+    ['BusinessAdmin'],
 
-    ['Civil Engineering',
-     "CivilEng", "CivilEngineering", "Civil Engineer", "CivilEngineer"],
+    ['ComSci'],
 
-    ['China Studies',
-     "China Study", "ChinaStudies"],
+    ['Communications'],
 
-    ['DigitalMedia',
-     "Digital Media"],
+    ['Civil Engineering'],
 
-    ['Finance',
-     "EconFinance", "EconomyFinance", "Economy Finance", "Econ Finance"],
+    ['China Studies'],
 
-    ['Environmental Science',
-     "EnviSci", "EnvironmentalScience", "Enviromental Science", "EnviromentalScience"],
+    ['DigitalMedia'],
+
+    ['Finance'],
+
+    ['EconFinance'],
+
+    ['Environmental Science'],
 
     ['English'],
 
-    ['ElectricEngineering',
-     "Electrical Engineering", "ElectricalEngineering", "Electric Engineering", "ElectEng"],
+    ['ElectricEngineering'],
 
-    ['ItlBusiness',
-     "International Business", "InternationalBusiness", "BusinessInternational", "InterBusiness"],
+    ['ItlBusiness'],
 
-    ['IndustryDesign',
-     "IndustrialDesign", "Industy Design", "Industrial Design", "IndusDes"],
+    ['IndustryDesign'],
 
-    ['ManufaEngineering',
-     "ManuEng", "Manufacturing Engineer"],
+    ['IntelRobotics'],
 
-    ['MechaEngineering',
-     "Mechatronic Engineering", "MechatronicEng", "MechaEng"],
+    ['InformationSys'],
 
-    ['TeleCom',
-     "Telecommunications", "Telecom Engineering", "Telecommunication Engineering"],
+    ['ManufaEngineering'],
 
-    ['UrbanDesign', "Urban Design", "UrbDes"]
+    ['Marketing'],
 
+    ['MechaEngineering'],
 
+    ['TeleCom'],
 
+    ['TV Production'],
 
+    ['UrbanDesign']]
 
 
-]
 @client.command()
 async def course(ctx,*,roleIN):
 
-    for _ in Course_Roles:
-        for i in _:
-            if roleIN.upper() == i.upper():
-                roleVAR = _[0]
+    #algo to find closest string to input
+    roleOUT = process.extract(roleIN, courseRoles, limit=2)
 
+    #saves closest string to roleVAR
+    roleVAR = roleOUT[0][0][0]
 
-
+    #gets role from server based on roleVAR
     x = discord.utils.get(ctx.guild.roles, name=roleVAR)
     m_role = []
+
+    #takes all roles from author and puts in on a list
     for mem_role in ctx.author.roles:
         m_role.append(mem_role)
-    for _ in Course_Roles:
+
+    #compares courseRoles to author's roles and removes any existing course roles
+    for _ in courseRoles:
         for i in m_role:
             if i.name == _[0] and i != x:
                 await ctx.author.remove_roles(i)
 
+    #gives author the role
     await ctx.author.add_roles(x)
     await ctx.send(f"Role {roleVAR} given ;)")
 
