@@ -170,6 +170,8 @@ async def course(ctx,*,roleIN):
     await ctx.send(f"Role {roleVAR} given ;)")
 
 
+@client.command()
+@has_permissions()
 
 
 
