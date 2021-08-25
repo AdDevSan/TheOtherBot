@@ -1,4 +1,5 @@
 import discord
+import emoji
 from discord.ext import commands
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
@@ -152,9 +153,10 @@ async def course(ctx,*,roleIN):
 
     #gets role from server based on roleVAR
     x = discord.utils.get(ctx.guild.roles, name=roleVAR)
-    m_role = []
+
 
     #takes all roles from author and puts in on a list
+    m_role = []
     for mem_role in ctx.author.roles:
         m_role.append(mem_role)
 
@@ -168,35 +170,65 @@ async def course(ctx,*,roleIN):
     embed=discord.Embed(title="Course Roles", description= f"Results for \"{roleIN}\" :", color=0x1271c4)
 
     count = 0
-
+    valid = False
     #list to refer to discord number emote
     numdict = ((0,':zero:'),(1,':one:'), (2, ':two:'),(3,':three:'),(4,':four:'),(5,':five:'),
 
                (6,':six:'),(7,':seven:'),(8,':eight:'),(9,':nine'))
+
+    emolist = []
+
     for roleOut in roleOUT: #roleOut example: (['BioInformatics'], 90)
 
-        if roleOut[1] > 60:
+        #if ratio is greater than 60 and ratio diff between first ratio and other ratio less than 25
+        if roleOut[1] > 60 and (roleOUT[0][1] - roleOut[1]) <= 25:
             count += 1
             embed.add_field(name = "\u200b", value = f'{numdict[count][1]} - {roleOut[0][0]}' ,inline = True)
 
+            prevRatio = roleOut[1]
+          #appends number emoji & role name to emolist
+            emolist.append([numdict[count][1], roleOut[0][0]])
+            valid = True
+
+    # if ratio too low: valid = false ; process ends after embed sent
+    if valid == False:
+        embed.add_field(name = "\u200b", value = f'your search was off limits, please try again...' ,inline = False)
+
+    #THIS LINE SENDS THE EMBED
     justSent = await ctx.send(embed=embed)
+    print(justSent)
+    # if valid == True
+    if valid:
 
-    #TODO: add reaction role on embed
-    for i in range(1):
-        await justSent.add_reaction(f"1️⃣")
+        #TODO: add reaction role on embed
+        for emo in emolist:
+            await justSent.add_reaction(emoji.emojize(emo[0], use_aliases = True))
 
-    #TODO: make reaction give author select role
+        #TODO: make reaction give author select role
 
-    #TODO: modify embed message, remove all reactions
+        #TODO: modify embed message, remove all reactions
+        print(emolist)
+        #TBD: gives author the role
 
-    #TBD: gives author the role
-    await ctx.author.add_roles(x)
-    await ctx.send(f"Role {roleVAR} given ;)")
+        def check(r,m):
+            return m == ctx.author and r.message.channel == ctx.channel
+        reaction, user = await client.wait_for('reaction_add', check=check, timeout=60)
+        if reaction.emoji is not None:
+            print(reaction.emoji)
+        '''await ctx.author.add_roles(x)
+                await ctx.send(f"Role {roleVAR} given ;)")'''
+        '''@client.event
+        async def on_reaction_add(reaction, user):
+
+            #if valid is True, reacted message ID matches justSent, user ID matches author
+            if valid and reaction.message == justSent and user.id == ctx.author.id:
+                aReact = reaction.emoji
+                await justSent.clear_reaction'''
 
 
 
 
-@client.command()
+'''@client.command()
 async def embedtest(ctx):
     roleIN = "hi"
     embed = discord.Embed(title=f'Results for \"{roleIN}\"')
@@ -204,7 +236,7 @@ async def embedtest(ctx):
 
     embed.add_field(value = ctx.author.id, inline = True)
     await ctx.send(embed=embed)
-
+'''
 
 
 '''@client.command()
