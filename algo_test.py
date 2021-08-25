@@ -47,7 +47,9 @@ courseRoles = [
 
 
 input = input("Enter Input: ")
-output = process.extract(input, courseRoles, limit = 2)
+output = process.extract(input, courseRoles, limit = 5)
+print(output)
+print(output[0][1])
 print(output[0][0][0])
 '''def compare(input, list):
 

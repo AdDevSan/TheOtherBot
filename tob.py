@@ -145,7 +145,7 @@ courseRoles = [
 async def course(ctx,*,roleIN):
 
     #algo to find closest string to input
-    roleOUT = process.extract(roleIN, courseRoles, limit=2)
+    roleOUT = process.extract(roleIN, courseRoles, limit=5)
 
     #saves closest string to roleVAR
     roleVAR = roleOUT[0][0][0]
@@ -164,13 +164,46 @@ async def course(ctx,*,roleIN):
             if i.name == _[0] and i != x:
                 await ctx.author.remove_roles(i)
 
-    #gives author the role
+    #TODO: add embed
+    embed=discord.Embed(title="Course Roles", description= f"Results for \"{roleIN}\" :", color=0x1271c4)
+
+    count = 0
+
+    #list to refer to discord number emote
+    numdict = ((0,':zero:'),(1,':one:'), (2, ':two:'),(3,':three:'),(4,':four:'),(5,':five:'),
+
+               (6,':six:'),(7,':seven:'),(8,':eight:'),(9,':nine'))
+    for roleOut in roleOUT: #roleOut example: (['BioInformatics'], 90)
+
+        if roleOut[1] > 60:
+            count += 1
+            embed.add_field(name = "\u200b", value = f'{numdict[count][1]} - {roleOut[0][0]}' ,inline = True)
+
+    justSent = await ctx.send(embed=embed)
+
+    #TODO: add reaction role on embed
+    for i in range(1):
+        await justSent.add_reaction(f"1️⃣")
+
+    #TODO: make reaction give author select role
+
+    #TODO: modify embed message, remove all reactions
+
+    #TBD: gives author the role
     await ctx.author.add_roles(x)
     await ctx.send(f"Role {roleVAR} given ;)")
 
 
 
 
+@client.command()
+async def embedtest(ctx):
+    roleIN = "hi"
+    embed = discord.Embed(title=f'Results for \"{roleIN}\"')
+
+
+    embed.add_field(value = ctx.author.id, inline = True)
+    await ctx.send(embed=embed)
 
 
 
@@ -187,3 +220,6 @@ async def role(ctx,*,role):
 '''
 #--------------------------------------------------------
 client.run('NzU5MDA2OTE4NTYyOTM4ODkx.X23ORw.byOspn9OpCpywwY7MbkhU0EwsJM')
+
+"NzU5MDA2OTE4NTYyOTM4ODkx.X23ORw.byOspn9OpCpywwY7MbkhU0EwsJM" #real bot
+"NzU5NzE0NzgyMDU5NTYwOTgw.X3Bhhg.NyOghAJIG1M70qTpNH7OExpn7xY" #test bot
