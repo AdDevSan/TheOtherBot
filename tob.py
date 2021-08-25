@@ -119,7 +119,7 @@ courseRoles = [
 
     ['English'],
 
-    ['ElectricEngineering'],
+    ['ElectricalEngineering'],
 
     ['ItlBusiness'],
 
@@ -148,11 +148,11 @@ async def course(ctx,*,roleIN):
     #algo to find closest string to input
     roleOUT = process.extract(roleIN, courseRoles, limit=5)
 
-    #saves closest string to roleVAR
+    #saves highest ratio string to roleVAR
     roleVAR = roleOUT[0][0][0]
 
     #gets role from server based on roleVAR
-    x = discord.utils.get(ctx.guild.roles, name=roleVAR)
+    #x = discord.utils.get(ctx.guild.roles, name=roleVAR)
 
 
     #takes all roles from author and puts in on a list
@@ -163,12 +163,12 @@ async def course(ctx,*,roleIN):
     #compares courseRoles to author's roles and removes any existing course roles
     for _ in courseRoles:
         for i in m_role:
-            if i.name == _[0] and i != x:
+            if i.name == _[0]:
                 await ctx.author.remove_roles(i)
 
     #TODO: add embed
-    embed=discord.Embed(title="Course Roles", description= f"Results for \"{roleIN}\" :", color=0x1271c4)
-
+    embed=discord.Embed(title="Course Roles", description= f"results for \"{roleIN}\" :", color=0x1271c4)
+    embed.set_footer(text=f"requested by - @{ctx.message.author.name}   |   react to a role accordingly...")
     count = 0
     valid = False
     #list to refer to discord number emote
@@ -192,7 +192,7 @@ async def course(ctx,*,roleIN):
 
     # if ratio too low: valid = false ; process ends after embed sent
     if valid == False:
-        embed.add_field(name = "\u200b", value = f'your search was off limits, please try again...' ,inline = False)
+        embed.add_field(name = "\u200b", value = f'your search was off-limits, please try again...' ,inline = False)
 
     #THIS LINE SENDS THE EMBED
     justSent = await ctx.send(embed=embed)
@@ -206,15 +206,41 @@ async def course(ctx,*,roleIN):
 
         #TODO: make reaction give author select role
 
-        #TODO: modify embed message, remove all reactions
-        print(emolist)
-        #TBD: gives author the role
 
+        #from python discord server
         def check(r,m):
             return m == ctx.author and r.message.channel == ctx.channel
         reaction, user = await client.wait_for('reaction_add', check=check, timeout=60)
+
         if reaction.emoji is not None:
-            print(reaction.emoji)
+            print("hello")
+
+            #loops through each i[0] in emolist -> [[':one:', 'BioInformatics'], [':two:','Biology']]
+            mRole = ""
+
+            while mRole == "":
+                for i in emolist:
+                    print(f"{emoji.emojize(i[0], use_aliases=True)} == {reaction.emoji}")
+
+                    #if :one:/:two:/:three: == reacted emoji
+                    if emoji.emojize(i[0], use_aliases=True) == reaction.emoji:
+
+                        #gets corresp. role name from emolist, place it in mRole variable
+                        mRole = i[1]
+                        #gets role from server based on name from emolist and corresp. emoji react
+                        matchingRole = discord.utils.get(ctx.guild.roles, name=mRole)
+                        await ctx.author.add_roles(matchingRole)
+                        print("role given")
+
+            # TODO: modify embed message, remove all reactions
+            #removes embed desc
+            editEmbed=discord.Embed(title="Course Roles", description= "\u200b", color=0x1271c4)
+            #edits field
+            editEmbed.add_field(name=f"The role {mRole} has been successfully added!", value='\u200b', inline=True)
+            editEmbed.set_footer(text=f"requested by - @{ctx.message.author.name}")
+            await justSent.edit(embed=editEmbed)
+            await justSent.clear_reactions()
+            # TBD: gives author the role
         '''await ctx.author.add_roles(x)
                 await ctx.send(f"Role {roleVAR} given ;)")'''
         '''@client.event
