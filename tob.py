@@ -2,6 +2,7 @@ import asyncio
 import discord
 import emoji
 from discord.ext import commands
+from discord.ext.commands import has_permissions, CheckFailure
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
@@ -228,6 +229,18 @@ async def course(ctx,*,roleIN):
             editEmbed2.set_footer(text=f"requested by - @{ctx.message.author.name}")
             await justSent.edit(embed=editEmbed2)
             await justSent.clear_reactions()
+
+
+@client.command()
+@has_permissions(administrator=True)
+async def addClass(ctx,*,className):
+    print(className)
+
+
+
+
+
+
 
 #--------------------------------------------------------
 client.run('NzU5MDA2OTE4NTYyOTM4ODkx.X23ORw.QLjkR8jXZk9Lb0lVM4XcP65CUtQ')
