@@ -104,10 +104,6 @@ async def course(ctx,*,roleIN):
 
 
 
-<<<<<<< HEAD
-@client.command()
-@has_permissions()
-=======
     # INTITIAL EMBED------------------------------------------------------------------------------
     embed=discord.Embed(title="Course Roles", description= f"results for \"{roleIN}\" :", color=0x1271c4)
     embed.set_footer(text=f"requested by - @{ctx.message.author.name}   |   react to a role accordingly")
@@ -115,7 +111,6 @@ async def course(ctx,*,roleIN):
     valid = False
     #list to refer to discord number emote
     numdict = ((0,':zero:'),(1,':one:'), (2, ':two:'),(3,':three:'),(4,':four:'),(5,':five:'),
->>>>>>> master
 
                (6,':six:'),(7,':seven:'),(8,':eight:'),(9,':nine'))
 
