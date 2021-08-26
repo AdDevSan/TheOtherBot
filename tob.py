@@ -199,7 +199,7 @@ async def course(ctx,*,roleIN):
 
                     #gives author role
                     await ctx.author.add_roles(matchingRole)
-                    print(matchingRole)
+            
 
                     # SUCCESS EMBED------------------------------------------------------------------------------------
                     # removes embed desc
