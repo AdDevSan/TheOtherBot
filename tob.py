@@ -86,61 +86,11 @@ async def blieonwefj(ctx):
     await m.add_reaction('4️⃣')
 
 courseRoles = [
-    ['Accounting'],
-
-    ['Actuarial'],
-
-    ['Architecture'],
-
-    ['AppMath'],
-
-    ['AppChemistry'],
-
-    ['BioInformatics'],
-
-    ['Biology'],
-
-    ['BusinessAdmin'],
-
-    ['ComSci'],
-
-    ['Communications'],
-
-    ['Civil Engineering'],
-
-    ['China Studies'],
-
-    ['DigitalMedia'],
-
-    ['Finance'],
-
-    ['EconFinance'],
-
-    ['Environmental Science'],
-
-    ['English'],
-
-    ['ElectricalEngineering'],
-
-    ['ItlBusiness'],
-
-    ['IndustryDesign'],
-
-    ['IntelRobotics'],
-
-    ['InformationSys'],
-
-    ['ManufaEngineering'],
-
-    ['Marketing'],
-
-    ['MechaEngineering'],
-
-    ['TeleCom'],
-
-    ['TV Production'],
-
-    ['UrbanDesign']]
+    ['Accounting'],['Actuarial'],['Architecture'],['AppMath'], ['AppChemistry'], ['BioInformatics'],['Biology'],
+['BusinessAdmin'], ['ComSci'],['Communications'], ['Civil Engineering'],['China Studies'], ['DigitalMedia'], ['Finance'],
+['EconFinance'],['Environmental Science'],['English'],['ElectricalEngineering'], ['ItlBusiness'],['IndustryDesign'],
+['IntelRobotics'],['InformationSys'],['ManufaEngineering'],['Marketing'],['MechaEngineering'],['TeleCom'],
+['TV Production'],['UrbanDesign']]
 
 
 @client.command()
@@ -180,8 +130,9 @@ async def course(ctx,*,roleIN):
             emolist.append([numdict[count][1], roleOut[0][0]])
             valid = True
 
-    #adds cancel option
-    embed.add_field(name = "\u200b", value = emoji.emojize(f':no_entry_sign: - Cancel Request', use_aliases = True) ,inline = False)
+    #adds cancel option if valid
+    if valid:
+        embed.add_field(name = "\u200b", value = emoji.emojize(f':no_entry_sign: - Cancel Request', use_aliases = True) ,inline = False)
 
    # if ratio too low: valid = false ; process ends after embed sent
     if valid == False:
@@ -189,7 +140,6 @@ async def course(ctx,*,roleIN):
 
     #THIS LINE SENDS THE EMBED------------------------------------------------------------------
     justSent = await ctx.send(embed=embed)
-    print(justSent)
 
     # if valid == True
     if valid:
@@ -210,68 +160,64 @@ async def course(ctx,*,roleIN):
             reaction, user = await client.wait_for('reaction_add', check=check, timeout=20) #timeout 20s
 
             if reaction.emoji is not None:
-                print("hello")
 
                 #loops through each i[0] in emolist -> [[':one:', 'BioInformatics'], [':two:','Biology']]
                 mRole = ""
 
                 #Flag to test if reaction is cancel or other emoji
                 roleFound = False
-                print(roleFound)
-                for i in emolist:
-                    print(f"{emoji.emojize(i[0], use_aliases=True)} == {reaction.emoji}")
 
+                #Loop to find corresponding emoji
+                for i in emolist:
                     #if :one:/:two:/:three: == reacted emoji
                     if emoji.emojize(i[0], use_aliases=True) == reaction.emoji:
-
                         #Flag = True
                         roleFound = True
-                    print(roleFound)
-
-                    #if the emoji matches role (not cancel)
-                    if roleFound:
                         #gets corresp. role name from emolist, place it in mRole variable
                         mRole = i[1]
-                        #gets role from server based on name from emolist and corresp. emoji react
+
+                         #gets role from server based on name from emolist and corresp. emoji react
                         matchingRole = discord.utils.get(ctx.guild.roles, name=mRole)
 
-                        #REMOVES AUTHOR EXISTING CLASS ROLES FUNCTION                            # takes all roles from author and puts in on a list
-                        m_role = []
+                    #if the emoji matches role (not cancel)
+                if roleFound:
+                    
+                    #REMOVES AUTHOR EXISTING CLASS ROLES FUNCTION-----------------------------------
 
-                        # for every role in author roles
-                        for mem_role in ctx.author.roles:
-                            m_role.append(mem_role)
+                     # takes all roles from author to be put in m_role
+                    m_role = []
+                   
+                    # for every role in author roles
+                    for mem_role in ctx.author.roles:
+                        m_role.append(mem_role)
 
-                        # compares courseRoles to author's roles and removes any existing course roles
-                        for _ in courseRoles:
-                            for i in m_role:
-                                   if i.name == _[0]:
-                                      await ctx.author.remove_roles(i)
+                    # compares courseRoles to author's roles and removes any existing course roles
+                    for _ in courseRoles:
+                        for i in m_role:
+                            if i.name == _[0]:
+                                await ctx.author.remove_roles(i)
 
-                         #gives author role
-                        await ctx.author.add_roles(matchingRole)
-                        print("role given")
+                    #gives author role
+                    await ctx.author.add_roles(matchingRole)
+                    print(matchingRole)
 
-                         # SUCCESS EMBED------------------------------------------------------------------------------------
-                        # removes embed desc
-                        editEmbed = discord.Embed(title="Course Roles", description="\u200b", color=0x1271c4)
-                         # edits field
-                        editEmbed.add_field(name=f"{mRole} role successfully added!", value='\u200b', inline=True)
-                        editEmbed.set_footer(text=f"requested by - @{ctx.message.author.name}")
-                        await justSent.edit(embed=editEmbed)
-                        await justSent.clear_reactions()
+                    # SUCCESS EMBED------------------------------------------------------------------------------------
+                    # removes embed desc
+                    editEmbed = discord.Embed(title="Course Roles", description="\u200b", color=0x1271c4)
+                    # edits field
+                    editEmbed.add_field(name=f" role \"{mRole}\" successfully added!", value='\u200b', inline=True)
+                    editEmbed.set_footer(text=f"requested by - @{ctx.message.author.name}")
+                    await justSent.edit(embed=editEmbed)
+                    await justSent.clear_reactions()
 
-                    #if cancel----------------------------------------------------------------
-                    else:
-                        cancelEmbed = discord.Embed(title="Course Roles", description="\u200b", color=0x1271c4)
-                        # edits field
-                        cancelEmbed.add_field(name=emoji.emojize("  :no_entry_sign:   Request Cancelled!",use_aliases = True), value='\u200b', inline=True)
-                        cancelEmbed.set_footer(text=f"requested by - @{ctx.message.author.name}")
-                        await justSent.edit(embed=cancelEmbed)
-                        await justSent.clear_reactions()
-
-
-
+                #if cancel----------------------------------------------------------------
+                else:
+                    cancelEmbed = discord.Embed(title="Course Roles", description="\u200b", color=0x1271c4)
+                    # edits field
+                    cancelEmbed.add_field(name=emoji.emojize("  :no_entry_sign:   Request Cancelled!",use_aliases = True), value='\u200b', inline=True)
+                    cancelEmbed.set_footer(text=f"requested by - @{ctx.message.author.name}")
+                    await justSent.edit(embed=cancelEmbed)
+                    await justSent.clear_reactions()
 
         #TimeOut Error Response
         except asyncio.TimeoutError:
@@ -284,7 +230,7 @@ async def course(ctx,*,roleIN):
             await justSent.clear_reactions()
 
 #--------------------------------------------------------
-client.run('NzU5MDA2OTE4NTYyOTM4ODkx.X23ORw.byOspn9OpCpywwY7MbkhU0EwsJM')
+client.run('NzU5MDA2OTE4NTYyOTM4ODkx.X23ORw.QLjkR8jXZk9Lb0lVM4XcP65CUtQ')
 
-"NzU5MDA2OTE4NTYyOTM4ODkx.X23ORw.byOspn9OpCpywwY7MbkhU0EwsJM" #real bot
-"NzU5NzE0NzgyMDU5NTYwOTgw.X3Bhhg.NyOghAJIG1M70qTpNH7OExpn7xY" #test bot
+"NzU5MDA2OTE4NTYyOTM4ODkx.X23ORw.QLjkR8jXZk9Lb0lVM4XcP65CUtQ" #real bot
+"NzU5NzE0NzgyMDU5NTYwOTgw.X3Bhhg.NyOghAJIG1M70qTpNH7OExpn7xY" #test 
