@@ -13,7 +13,8 @@ client.remove_command("help")'''
 
 
 #------------------------------------------------------
-TOS = ""
+#Global Variables
+TOS = None
 
 
 
