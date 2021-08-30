@@ -77,6 +77,7 @@ async def on_member_join(member):
     totalMembers = len([m for m in TOS.members if not m.bot])
     await mBChannel.edit(name = f"Members: {totalMembers}")
 
+    #pings user in reaction roles channel
     jjID = member.id
     rrc = TOS.get_channel(allChannelID["reaction-roles"])
     ping = await rrc.send(f"<@!{jjID}>")
@@ -133,7 +134,7 @@ async def on_raw_reaction_add(payload):
 
 
             
-        
+  
 
 
 
