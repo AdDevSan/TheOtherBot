@@ -23,15 +23,21 @@ client.remove_command("help")'''
 #Global Variables
 TOS = None
 
+year_roles = {"1️⃣": 759014288043671602,
+                "2️⃣": 759014527211143178,
+                "3️⃣": 759014621473538070,
+                "4️⃣": 759014693057855518,
+                "💡": 880688917895065630,
+                "🖇️": 880689672307740672}
 
-
-year_roles = [["Year 1",759014288043671602],
+'''year_roles = [["Year 1",759014288043671602],
               ["Year 2",759014527211143178],
               ["Year 3",759014621473538070],
               ["Year 4",759014693057855518],
               ["Masters/PhD",880688917895065630],
               ["Others",880689672307740672]
-              ]
+              ]'''
+              
 rY1 = ""
 rY2 = ""
 rY3 = ""
@@ -100,49 +106,43 @@ Year_Message = 759024782405926952
 #Year Roles
 @client.event
 async def on_raw_reaction_add(payload):
-    if payload.message_id==Year_Message:
-        m = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
-        if payload.emoji.name == '1️⃣':
-            role_id = year_roles[0][1]
-            await m.remove_reaction('2️⃣', payload.member)
-            await m.remove_reaction('3️⃣', payload.member)
-            await m.remove_reaction('4️⃣', payload.member)
-        elif payload.emoji.name=='2️⃣':
-            role_id=year_roles[1][1]
-            await m.remove_reaction('1️⃣', payload.member)
-            await m.remove_reaction('3️⃣', payload.member)
-            await m.remove_reaction('4️⃣', payload.member)
-        elif payload.emoji.name=='3️⃣':
-            role_id=year_roles[2][1]
-            await m.remove_reaction('2️⃣', payload.member)
-            await m.remove_reaction('1️⃣', payload.member)
-            await m.remove_reaction('4️⃣', payload.member)
-        elif payload.emoji.name=='4️⃣':
-            role_id=year_roles[3][1]
-            await m.remove_reaction('2️⃣', payload.member)
-            await m.remove_reaction('3️⃣', payload.member)
-            await m.remove_reaction('1️⃣', payload.member)
-        r=client.get_guild(payload.guild_id).get_role(role_id)
-        await payload.member.add_roles(r)
+    yearReactMessage = variablesDict["year_react_message"]
+    if payload.message_id== yearReactMessage:
 
-@client.event
-async def on_raw_reaction_remove(payload):
-    if payload.message_id==Year_Message:
+        m = await client.get_channel(payload.channel_id).fetch_message(yearReactMessage)
+        emojiChoice = payload.emoji.name
+        getMember = TOS.get_member(payload.user_id)
 
-        if payload.emoji.name == '1️⃣':
-            role_id = year_roles[0][1]
+        memRoleList = getMember.roles
+        memRoleIDList = []
 
-        elif payload.emoji.name=='2️⃣':
-            role_id=year_roles[1][1]
+        await m.remove_reaction(emojiChoice, payload.member)
+        
+        for roles in memRoleList:
+            memRoleIDList.append(roles.id)
 
-        elif payload.emoji.name=='3️⃣':
-            role_id=year_roles[2][1]
+        #compares roles in dictionary year_roles with member roles, appends existing year roles to list
+        existingYearRoles = []
+        for key in year_roles:
+            for roleID in memRoleIDList:
+                if year_roles[key] == roleID:
+                    existingYearRoles.append(memRoleList[memRoleIDList.index(roleID)])
+        
+        #removes all member roles that is in list existingYearRoles
+        print(existingYearRoles)
+        if len(existingYearRoles) > 0:
+            for role in existingYearRoles:
+                await getMember.remove_roles(role)
 
-        elif payload.emoji.name=='4️⃣':
-            role_id=year_roles[3][1]
+        #gives member the selected role
+        selectRoleID = year_roles[emojiChoice]
+        await getMember.add_roles(TOS.get_role(selectRoleID))
 
-        r=client.get_guild(payload.guild_id).get_role(role_id)
-        await client.get_guild(payload.guild_id).get_member(payload.user_id).remove_roles(r)
+
+
+            
+        
+
 
 
 
