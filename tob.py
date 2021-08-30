@@ -70,15 +70,20 @@ async def on_ready():
     cO = len(rO.members)
 
 @client.event
-async def on_member_join(ctx):
+async def on_member_join(member):
 
     #edits member count channel
     mBChannel = client.get_channel(allChannelID["member-count"])
     totalMembers = len([m for m in TOS.members if not m.bot])
     await mBChannel.edit(name = f"Members: {totalMembers}")
 
+    jjID = member.id
+    rrc = TOS.get_channel(allChannelID["reaction-roles"])
+    ping = await rrc.send(f"<@!{jjID}>")
+    await ping.delete()
+
 @client.event
-async def on_member_remove(ctx):
+async def on_member_remove(member):
     #edits member count channel
     mBChannel = client.get_channel(allChannelID["member-count"])
     totalMembers = len([m for m in TOS.members if not m.bot])
