@@ -1,11 +1,18 @@
 import asyncio
 import discord
 import emoji
+import json
 from discord.ext import commands
 from discord.ext.commands import has_permissions, MissingPermissions
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
+
+variablesr = open('variables.json','r')
+
+#dictionaries
+allChannelID = json.load(open('channel_id.json','r'))
+variablesDict = json.load(variablesr)
 
 
 '''client = commands.Bot(command_prefix='$',intents=discord.Intents.all())
@@ -40,11 +47,9 @@ cM = 0
 cO = 0
 
 
+
 print(rY1)
 
-#Reaction Roles Channel
-ReactionRoleChannelID = 758998142414225409
-RRCnew = 880451939106693171
 
 
 client = commands.Bot(command_prefix='$',intents=discord.Intents.all())
@@ -74,7 +79,20 @@ async def on_ready():
     print(rY1)
     print(f"{cY1}  {cY2}  {cY3}  {cY4}  {cM}  {cO}")
 
+@client.event
+async def on_member_join(ctx):
 
+    #edits member count channel
+    mBChannel = client.get_channel(allChannelID["member-count"])
+    totalMembers = len([m for m in TOS.members if not m.bot])
+    await mBChannel.edit(name = f"Members: {totalMembers}")
+
+@client.event
+async def on_member_remove(ctx):
+    #edits member count channel
+    mBChannel = client.get_channel(allChannelID["member-count"])
+    totalMembers = len([m for m in TOS.members if not m.bot])
+    await mBChannel.edit(name = f"Members: {totalMembers}")
 
 #---------------------------------------------------------------------------------------------
 #Year Reaction Message
@@ -125,31 +143,42 @@ async def on_raw_reaction_remove(payload):
 
         r=client.get_guild(payload.guild_id).get_role(role_id)
         await client.get_guild(payload.guild_id).get_member(payload.user_id).remove_roles(r)
+
+
+
+@client.event
+async def on_member_update(before,after):
+
+    reactionRolesChannel = client.get_channel(allChannelID['reaction-roles'])
+    yearReactionMessage = await reactionRolesChannel.fetch_message(variablesDict["year_react_message"])
+    cY1 = len(rY1.members)
+    cY2 = len(rY2.members)                                
+    cY3 = len(rY3.members)
+    cY4 = len(rY4.members)
+    cM = len(rM.members)
+    cO = len(rO.members)
+    total = cY1 + cY2 + cY3 + cY4 + cM + cO
+    embed=discord.Embed(title="Year Roles", description="select a role according to your year of study to gain access to channels ! ", color=0x3900a5)
+    embed.add_field(name="Year 1️⃣", value=f"count: {cY1}", inline=True)
+    embed.add_field(name="Year 2️⃣", value=f"count: {cY2}", inline=True)
+    embed.add_field(name="Year 3️⃣", value=f"count: {cY3}", inline=True)
+    embed.add_field(name="Year 4️⃣", value=f"count: {cY4}", inline=True)
+    embed.add_field(name="Masters/PhD 💡", value=f"count: {cM}", inline=True)
+    embed.add_field(name="Other 🖇️", value=f"count: {cO}", inline=True)
+    embed.set_footer(text=f"TheOtherSide 另一边 | 2020 | total: {total}")
+
+    # edit the embed of the message
+    await yearReactionMessage.edit(embed=embed)
 #---------------------------------------------------------------------------------------------
 
 
 
-
-@client.command()
-async def blieonwefj(ctx):
-
-    m = await client.get_channel(ReactionRoleChannelID).send("Year of Study Roles (react to 1 only)")
-    await m.add_reaction('1️⃣')
-    await m.add_reaction('2️⃣')
-    await m.add_reaction('3️⃣')
-    await m.add_reaction('4️⃣')
-
+# make sure reaction roles channel ID correct in channel_id.json
 @client.command()
 @has_permissions(manage_roles=True, ban_members=True)
 async def addyrr(ctx):
 
-    rY1 = TOS.get_role(759014288043671602)
-    rY2 = TOS.get_role(759014527211143178)
-    rY3 = TOS.get_role(759014621473538070)
-    rY4 = TOS.get_role(759014693057855518)
-    rM = TOS.get_role(880688917895065630)
-    rO = TOS.get_role(880689672307740672)
-
+    await ctx.send("make sure reaction roles channel ID is correct in channel_id.json")
     cY1 = len(rY1.members)
     cY2 = len(rY2.members)                                
     cY3 = len(rY3.members)
@@ -167,13 +196,19 @@ async def addyrr(ctx):
     embed.set_footer(text=f"TheOtherSide 另一边 | 2020 | total: {total}")
 
 
-    m = await client.get_channel(RRCnew).send(embed=embed)
+    yearReactionMessage = await client.get_channel(allChannelID["reaction-roles"]).send(embed=embed)
+    variablesDict['year_react_message'] = yearReactionMessage.id
+    json.dump(variablesDict, open('variables.json','w'))
+
+    m = yearReactionMessage
     await m.add_reaction('1️⃣')
     await m.add_reaction('2️⃣')
     await m.add_reaction('3️⃣')
     await m.add_reaction('4️⃣')
     await m.add_reaction('💡')
     await m.add_reaction('🖇️')
+
+    
 
 
 
