@@ -14,11 +14,6 @@ variablesr = open('variables.json','r')
 allChannelID = json.load(open('channel_id.json','r'))
 variablesDict = json.load(variablesr)
 
-
-'''client = commands.Bot(command_prefix='$',intents=discord.Intents.all())
-client.remove_command("help")'''
-
-
 #------------------------------------------------------
 #Global Variables
 TOS = None
@@ -30,14 +25,6 @@ year_roles = {"1️⃣": 759014288043671602,
                 "💡": 880688917895065630,
                 "🖇️": 880689672307740672}
 
-'''year_roles = [["Year 1",759014288043671602],
-              ["Year 2",759014527211143178],
-              ["Year 3",759014621473538070],
-              ["Year 4",759014693057855518],
-              ["Masters/PhD",880688917895065630],
-              ["Others",880689672307740672]
-              ]'''
-              
 rY1 = ""
 rY2 = ""
 rY3 = ""
@@ -107,6 +94,9 @@ Year_Message = 759024782405926952
 @client.event
 async def on_raw_reaction_add(payload):
     yearReactMessage = variablesDict["year_react_message"]
+
+
+    #Role Giver in Year Roles Embed
     if payload.message_id== yearReactMessage:
 
         m = await client.get_channel(payload.channel_id).fetch_message(yearReactMessage)
@@ -116,8 +106,9 @@ async def on_raw_reaction_add(payload):
         memRoleList = getMember.roles
         memRoleIDList = []
 
+        #removes the reaction in embed message
         await m.remove_reaction(emojiChoice, payload.member)
-        
+
         for roles in memRoleList:
             memRoleIDList.append(roles.id)
 
