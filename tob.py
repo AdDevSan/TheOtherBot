@@ -102,12 +102,12 @@ async def course(ctx,*,roleIN):
 	embed.set_author(name=ctx.message.author.name, icon_url=ctx.message.author.avatar)
 	count = 0
 	#list to refer to discord number emote
-	numdict = {0: ':zero:', 1: ':one:', 2: ':two:', 3: ':three:', 4: ':four:', 5: ':five:',
+	numdict = [':zero:', ':one:', ':two:', ':three:', ':four:', ':five:',
 
-	           6: ':six:', 7: ':seven:', 8: ':eight:', 9: ':nine'}
+	           ':six:', ':seven:', ':eight:', ':nine']
 
 	#EMOLIST-----------------------
-	emolist = []
+	emolist = {}
 
 	# ADDS FIELD FOR EVERY ROLE TO BE PUT IN MENU
 	for roleOut in roleOUT: #roleOut example: (['BioInformatics'], 90)
@@ -118,24 +118,21 @@ async def course(ctx,*,roleIN):
 			count += 1
 			embed.add_field(name = "\u200b", value = f'{numdict[count]} - {roleOut[0][0]}' ,inline = True)
 			#appends number emoji & role name to emolist
-			emolist.append([numdict[count], roleOut[0][0]])
+			emolist[numdict[count]] = roleOut[0][0]
 
 	#adds cancel option if valid
-	if emolist:
-		embed.add_field(name = "\u200b", value = emoji.emojize(f':no_entry_sign: - Cancel Request', use_aliases = True) ,inline = False)
-	else:
-		# if ratio too low: valid = false ; process ends after embed sent
-		embed.add_field(name = "\u200b", value = 'your search was off-limits, please try again...' ,inline = False)
+	# if ratio too low: valid = false ; process ends after embed sent
+	emfield = emoji.emojize(f':no_entry_sign: - Cancel Request', use_aliases = True) if emolist else 'your search was off-limits, please try again...'
 
 	#THIS LINE SENDS THE EMBED------------------------------------------------------------------
-	justSent = await ctx.send(embed=embed)
+	justSent = await ctx.send(embed=embed.add_field(name = "\u200b", value = emfield ,inline = False))
 
 	# if valid == True
 	if emolist:
 
 		#THIS LINE PROVIDES THE REACTION ROLES BASED ON EMOLIST----------------------------------------
 		for emo in emolist:
-			await justSent.add_reaction(emoji.emojize(emo[0], use_aliases = True))
+			await justSent.add_reaction(emoji.emojize(emo, use_aliases = True))
 
 		#ADDS CANCEL BUTTON REACTION
 		await justSent.add_reaction(emoji.emojize(":no_entry_sign:", use_aliases=True))
@@ -143,6 +140,9 @@ async def course(ctx,*,roleIN):
 		#FROM PYTHON DISCORD SERVER
 		def check(r,m):
 			return m == ctx.author and r.message.channel == ctx.channel
+
+		# removes embed desc
+		editEmbed = discord.Embed(title="Course Roles", description="\u200b", color=0x1271c4)
 
 		#try for timeout
 		try:
@@ -156,9 +156,9 @@ async def course(ctx,*,roleIN):
 				#Loop to find corresponding emoji
 				for i in emolist:
 					#if :one:/:two:/:three: == reacted emoji
-					if emoji.emojize(i[0], use_aliases=True) == reaction.emoji:
+					if emoji.emojize(i, use_aliases=True) == reaction.emoji:
 						#gets corresp. role name from emolist, place it in mRole variable
-						mRole = i[1]
+						mRole = emolist[i]
 
 						#gets role from server based on name from emolist and corresp. emoji react
 						matchingRole = discord.utils.get(ctx.guild.roles, name=mRole)
@@ -169,11 +169,7 @@ async def course(ctx,*,roleIN):
 					#REMOVES AUTHOR EXISTING CLASS ROLES FUNCTION-----------------------------------
 
 					# takes all roles from author to be put in m_role
-					m_role = []
-
-					# for every role in author roles
-					for mem_role in ctx.author.roles:
-						m_role.append(mem_role)
+					m_role = [mem_role for mem_role in ctx.author.roles]
 
 					# compares courseRoles to author's roles and removes any existing course roles
 					for _ in courseRoles:
@@ -186,31 +182,21 @@ async def course(ctx,*,roleIN):
 
 
 					# SUCCESS EMBED------------------------------------------------------------------------------------
-					# removes embed desc
-					editEmbed = discord.Embed(title="Course Roles", description="\u200b", color=0x1271c4)
 					# edits field
 					editEmbed.add_field(name=f" role \"{mRole}\" successfully added!", value='\u200b', inline=True)
-					editEmbed.set_author(name=ctx.message.author.name, icon_url=ctx.message.author.avatar)
-					await justSent.edit(embed=editEmbed)
-					await justSent.clear_reactions()
 
 				#if cancel----------------------------------------------------------------
 				else:
-					cancelEmbed = discord.Embed(title="Course Roles", description="\u200b", color=0x1271c4)
 					# edits field
-					cancelEmbed.add_field(name=emoji.emojize("  :no_entry_sign:   Request Cancelled!",use_aliases = True), value='\u200b', inline=True)
-					cancelEmbed.set_footer(text=f"requested by - @{ctx.message.author.name}")
-					await justSent.edit(embed=cancelEmbed)
-					await justSent.clear_reactions()
+					editEmbed.add_field(name=emoji.emojize("  :no_entry_sign:   Request Cancelled!",use_aliases = True), value='\u200b', inline=True)
 
 		#TimeOut Error Response
 		except asyncio.TimeoutError:
 
 			#TIMEOUT ERROR EMBED---------------------------------------------------------------------------------
-			editEmbed2 = discord.Embed(title="Course Roles", description="\u200b", color=0x1271c4)
-			editEmbed2.add_field(name=f"TimeoutError!", value="be faster next time you slowpoke!", inline=False)
-			editEmbed2.set_author(name=ctx.message.author.name, icon_url=ctx.message.author.avatar)
-			await justSent.edit(embed=editEmbed2)
+			editEmbed.add_field(name=f"TimeoutError!", value="be faster next time you slowpoke!", inline=False)
+		finally:
+			await justSent.edit(embed=editEmbed.set_author(name=ctx.message.author.name, icon_url=ctx.message.author.avatar))
 			await justSent.clear_reactions()
 
 #--------------------------------------------------------
