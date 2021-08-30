@@ -41,7 +41,6 @@ cO = 0
 
 
 
-print(rY1)
 
 
 
@@ -69,8 +68,6 @@ async def on_ready():
     cY4 = len(rY4.members)
     cM = len(rM.members)
     cO = len(rO.members)
-    print(rY1)
-    print(f"{cY1}  {cY2}  {cY3}  {cY4}  {cM}  {cO}")
 
 @client.event
 async def on_member_join(ctx):
@@ -120,7 +117,6 @@ async def on_raw_reaction_add(payload):
                     existingYearRoles.append(memRoleList[memRoleIDList.index(roleID)])
         
         #removes all member roles that is in list existingYearRoles
-        print(existingYearRoles)
         if len(existingYearRoles) > 0:
             for role in existingYearRoles:
                 await getMember.remove_roles(role)
