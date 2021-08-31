@@ -3,11 +3,7 @@ import discord
 import emoji
 import json
 from discord.ext import commands
-<<<<<<< HEAD
 from discord.ext.commands import has_permissions, CheckFailure
-=======
-from discord.ext.commands import has_permissions, MissingPermissions
->>>>>>> master
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
@@ -351,7 +347,24 @@ async def course(ctx,*,roleIN):
             editEmbed2.set_footer(text=f"requested by - @{ctx.message.author.name}")
             await justSent.edit(embed=editEmbed2)
             await justSent.clear_reactions()
-<<<<<<< HEAD
+
+
+@client.command()
+@has_permissions(administrator = True)
+async def addcrr(ctx):
+    reactionRolesChannel = TOS.get_channel(allChannelID['reaction-roles'])
+    mathEmbed=discord.Embed(title="Math Modules", description="basically ur modules that generally requires more thinking & logic...", color=0xe91e63)
+    mathEmbed.add_field(name="Year 1", value="\u200b", inline=False)
+    mathEmbed.add_field(name="MTH015", value="\u200b", inline=True)
+    mathEmbed.add_field(name="MTH025/27", value="\u200b", inline=True)
+    mathEmbed.add_field(name="MTH023", value="\u200b", inline=True)
+    mathEmbed.add_field(name="Year 2", value="\u200b", inline=False)
+    mathEmbed.add_field(name="MTH", value="\u200b", inline=True)
+    mathEmbed.add_field(name="MTH", value="\u200b", inline=True)
+    mathEmbed.add_field(name="\u200b", value="\u200b", inline=True)
+    await ctx.send(embed=mathEmbed)
+    
+    
 
 
 @client.command()
@@ -363,10 +376,6 @@ async def addClass(ctx,*,className):
 
 
 
-
-
-=======
->>>>>>> master
 #--------------------------------------------------------
 client.run('NzU5MDA2OTE4NTYyOTM4ODkx.X23ORw.QLjkR8jXZk9Lb0lVM4XcP65CUtQ')
 
