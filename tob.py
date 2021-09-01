@@ -128,9 +128,11 @@ async def on_raw_reaction_add(payload):
                 await getMember.remove_roles(role)
 
         #gives member the selected role
-        selectRoleID = year_roles[emojiChoice]
-        await getMember.add_roles(TOS.get_role(selectRoleID))
+        selectRole = TOS.get_role(year_roles[emojiChoice])
+        await getMember.add_roles(selectRole)
 
+        #pings user and send confirm message
+        await TOS.get_channel(allChannelID["bot-commands"]).send(f"<@!{payload.user_id}> role `{selectRole}` awarded!")
 
 
             
