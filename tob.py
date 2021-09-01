@@ -13,7 +13,7 @@ variablesr = open('variables.json','r')
 #dictionaries
 allChannelID = json.load(open('channel_id.json','r'))
 variablesDict = json.load(variablesr)
-
+modulesDict = json.load(open('modules.json', 'r'))
 #------------------------------------------------------
 #Global Variables
 TOS = None
@@ -25,13 +25,12 @@ year_roles = {"1️⃣": 759014288043671602,
                 "💡": 880688917895065630,
                 "🖇️": 880689672307740672}
 
-rY1 = ""
-rY2 = ""
-rY3 = ""
-rY4 = ""
-rM = ""
-rO = ""
-
+rY1 = None
+rY2 = None
+rY3 = None
+rY4 = None
+rM = None
+rO = None
 cY1 =  0
 cY2 =  0                                
 cY3 =  0
@@ -56,6 +55,7 @@ async def on_ready():
     global TOS, rY1, rY2, rY3, rY4, rM, rO, cY1, cY2, cY3, cY4, cM, cO
     TOS = client.get_guild(758958473424797738)
     rY1 = TOS.get_role(759014288043671602)
+
     rY2 = TOS.get_role(759014527211143178)
     rY3 = TOS.get_role(759014621473538070)
     rY4 = TOS.get_role(759014693057855518)
@@ -99,7 +99,7 @@ async def on_raw_reaction_add(payload):
     yearReactMessage = variablesDict["year_react_message"]
 
 
-    #Role Giver in Year Roles Embed
+    #Role Giver in Year Roles Embed------------------------------------------------------
     if payload.message_id== yearReactMessage:
 
         m = await client.get_channel(payload.channel_id).fetch_message(yearReactMessage)
@@ -130,7 +130,9 @@ async def on_raw_reaction_add(payload):
         #gives member the selected role
         selectRoleID = year_roles[emojiChoice]
         await getMember.add_roles(TOS.get_role(selectRoleID))
+    #------------------------------------------------------------------------------------------------
 
+    #TODO: role giver for module roles
 
 
             
@@ -352,17 +354,31 @@ async def course(ctx,*,roleIN):
 @client.command()
 @has_permissions(administrator = True)
 async def addcrr(ctx):
-    reactionRolesChannel = TOS.get_channel(allChannelID['reaction-roles'])
-    mathEmbed=discord.Embed(title="Math Modules", description="basically ur modules that generally requires more thinking & logic...", color=0xe91e63)
-    mathEmbed.add_field(name="Year 1", value="\u200b", inline=False)
-    mathEmbed.add_field(name="MTH015", value="\u200b", inline=True)
-    mathEmbed.add_field(name="MTH025/27", value="\u200b", inline=True)
-    mathEmbed.add_field(name="MTH023", value="\u200b", inline=True)
-    mathEmbed.add_field(name="Year 2", value="\u200b", inline=False)
-    mathEmbed.add_field(name="MTH", value="\u200b", inline=True)
-    mathEmbed.add_field(name="MTH", value="\u200b", inline=True)
-    mathEmbed.add_field(name="\u200b", value="\u200b", inline=True)
-    await ctx.send(embed=mathEmbed)
+    
+
+    reactionRolesChannel = TOS.get_channel(allChannelID['bot-test'])
+
+    #TODO: Function to send embeds and add reactions
+    for key in modulesDict:
+
+        category = modulesDict[key]
+        
+        embed=discord.Embed(title=f"{key}", description="basically ur modules that generally requires more thinking & logic...", color=0xe91e63)
+        
+        for year in category: #year are keys, categories = modulesDict[key]
+
+            embed.add_field(name=f"Year {year}", value="\u200b", inline=False)
+
+            moduleList = category[year]
+            print(moduleList)
+            for i in moduleList: #category are the lists inside the nested dictionary
+
+                embed.add_field(name=f"{i}", value="\u200b", inline=True)
+        await reactionRolesChannel.send(embed=embed)
+
+    
+    
+
     
     
 
@@ -371,6 +387,10 @@ async def addcrr(ctx):
 @has_permissions(administrator=True)
 async def addClass(ctx,*,className):
     print(className)
+
+    #TODO: append class to json file
+    #TODO: create class channel
+    #TODO: create class role
 
 
 
