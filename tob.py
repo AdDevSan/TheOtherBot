@@ -2,6 +2,7 @@ import asyncio
 import discord
 import emoji
 import json
+import random
 from discord.ext import commands
 from discord.ext.commands import has_permissions, CheckFailure
 from fuzzywuzzy import fuzz
@@ -45,6 +46,17 @@ cO = 0
 
 client = commands.Bot(command_prefix='$',intents=discord.Intents.all())
 client.remove_command("help")
+
+#list to refer to discord number emote
+numdict = ((0,':zero:'),(1,':one:'), (2, ':two:'),(3,':three:'),(4,':four:'),(5,':five:'),
+
+            (6,':six:'),(7,':seven:'),(8,':eight:'),(9,':nine:'))
+emojiList = [
+        '😀', '🥰', '😴', '🤓', '🤮', '🤬', '😨', '🤑', '😫', '😎',
+    '🐒','🐕','🐎','🐪','🐁','🐘','🦘','🦈','🐓','🐝','👀','🦴','👩🏿','‍🤝','🧑','🏾','👱🏽','‍♀','🎞','🎨','⚽',
+    '🍕','🍗','🍜','☕','🍴','🍉','🍓','🌴','🌵','🛺','🚲','🛴','🚉','🚀','✈','🛰','🚦','🏳','‍🌈','🌎','🧭',
+    '🔥','❄','🌟','🌞','🌛','🌝','🌧','🧺','🧷','🪒','⛲','🗼','🕌','👁','‍🗨','💬','™','💯','🔕','💥','❤',
+]
 
 #------------------------------------------------------
 #Tells if bot is ready
@@ -230,10 +242,7 @@ async def course(ctx,*,roleIN):
     embed.set_footer(text=f"requested by - @{ctx.message.author.name}   |   react to a role accordingly")
     count = 0
     valid = False
-    #list to refer to discord number emote
-    numdict = ((0,':zero:'),(1,':one:'), (2, ':two:'),(3,':three:'),(4,':four:'),(5,':five:'),
 
-               (6,':six:'),(7,':seven:'),(8,':eight:'),(9,':nine'))
 
     #EMOLIST-----------------------
     emolist = []
@@ -351,33 +360,40 @@ async def course(ctx,*,roleIN):
             await justSent.clear_reactions()
 
 
-@client.command()
+'''@client.command()
 @has_permissions(administrator = True)
 async def addcrr(ctx):
     
 
     reactionRolesChannel = TOS.get_channel(allChannelID['bot-test'])
-
+    sampleList = []
     #TODO: Function to send embeds and add reactions
     for key in modulesDict:
 
         category = modulesDict[key]
-        
+        count = 0
         embed=discord.Embed(title=f"{key}", description="basically ur modules that generally requires more thinking & logic...", color=0xe91e63)
         
         for year in category: #year are keys, categories = modulesDict[key]
 
-            embed.add_field(name=f"Year {year}", value="\u200b", inline=False)
-
+            #if modules in years greater than 0
             moduleList = category[year]
-            print(moduleList)
+            if len(moduleList) > 0:
+                embed.add_field(name=f"Year {year}", value="\u200b", inline=False)         
+                print(moduleList)
+
             for i in moduleList: #category are the lists inside the nested dictionary
 
                 embed.add_field(name=f"{i}", value="\u200b", inline=True)
-        await reactionRolesChannel.send(embed=embed)
+                count +=1
+                print(F"count: {count}")
+        crr = await reactionRolesChannel.send(embed=embed)
+        sample = random.sample(emojiList, count)
 
-    
-    
+        for i in sample:
+            await crr.add_reaction(i)
+        sampleList.append(sample)
+    '''
 
     
     
@@ -385,10 +401,54 @@ async def addcrr(ctx):
 
 @client.command()
 @has_permissions(administrator=True)
-async def addClass(ctx,*,className):
-    print(className)
+async def addclass(ctx,*,className):
+    specDict = {"category":None,
+                "year":None,
+                "emoji":None
+                }
+    #TODO: add conditionals
+    await ctx.send("Select Category:")
+
+    count = 1
+    menu1 = {}
+    for categories in modulesDict:
+        await ctx.send(f"{count}. {categories}")
+        menu1[f"{count}"] = f"{categories}"
+        count += 1
+    print(menu1)
 
     #TODO: append class to json file
+    def check(m):
+
+        return m.author == ctx.author and len(m.content) == 1
+
+    try:
+        userM1 = await client.wait_for('message', check=check, timeout=20)
+        userC1 = userM1.content
+        specDict['category'] = menu1[userC1]
+
+        await ctx.send("What Year?")
+        
+        try: 
+            userM2 = await client.wait_for('message', check=check, timeout=20)
+            userC2 = userM2.content
+            if int(userC2)<=4 and int(userC2) >0:
+                specDict['year'] = userC2
+
+                usedEmo = []
+                for category in modulesDict:
+                    for year in modulesDict[category]: #{"1":[{}],}
+                        for list in modulesDict[category][year]:
+                            for module in list:
+                                usedEmo.append(module["emoji"])
+                
+                print(usedEmo)
+
+        except asyncio.TimeoutError:
+            await ctx.send("Terminated!")
+
+    except asyncio.TimeoutError:
+        await ctx.send("Terminated!")
     #TODO: create class channel
     #TODO: create class role
 
