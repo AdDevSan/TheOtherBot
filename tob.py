@@ -411,24 +411,68 @@ async def addclass(ctx,*,className):
 
     count = 1
     menu1 = {}
-    for categories in modulesDict:
-        await ctx.send(f"{count}. {categories}")
-        menu1[f"{count}"] = f"{categories}"
+    catList = []
+
+    #appends unique categories into catList
+    for module in modulesDict:
+        cat = modulesDict[module]['category']
+        try:
+            catList.index(cat)
+        except ValueError:
+            catList.append(cat)
+    
+    for i in catList:
+        await ctx.send(f"{count}. {i}")
+        menu1[f"{count}"] = f"{i}"
         count += 1
-    print(menu1)
+        print(menu1)
+    await ctx.send(f"{count}. add new category")
+
 
     #TODO: append class to json file
     def check(m):
-
         return m.author == ctx.author and len(m.content) == 1
 
+    #waits for author message reply
     try:
         userM1 = await client.wait_for('message', check=check, timeout=20)
         userC1 = userM1.content
-        specDict['category'] = menu1[userC1]
+        try:
+            specDict['category'] = menu1[userC1]
+            print(specDict)
+            await ctx.send("What Year?")
 
-        await ctx.send("What Year?")
         
+        except KeyError:
+            print(specDict)
+            print(f"{userC1}=={len(catList)+1}, {int(userC1) == len(catList)+1}")
+            if int(userC1) == len(catList)+1:
+                await ctx.send("Enter New Category:")
+                try:
+                    userNewCat = await client.wait_for('message', check=None, timeout=20)
+                    userNewCatC = userNewCat.content
+                    #add confirmation feature here
+                    await ctx.send(f"type \"{userNewCatC}\" again to confirm new category:")
+                    try:
+                        catConfirm = await client.wait_for('message', check=None, timeout=20)
+                        if catConfirm.content == userNewCatC:
+
+                            specDict['category'] = userNewCatC
+                            await ctx.send(f"New Category {userNewCatC} confirmed!")
+                            print(specDict)
+                        else:
+                            await ctx.send("Confirm did not match, please try again from the beginning!")
+                    except asyncio.TimeoutError:
+                        await ctx.send("Terminated!")
+            
+                except asyncio.TimeoutError:
+                    await ctx.send("Terminated!")
+            
+            else:
+                await ctx.send("Invalid Option !")
+        
+        
+        '''         
         try: 
             userM2 = await client.wait_for('message', check=check, timeout=20)
             userC2 = userM2.content
@@ -436,16 +480,12 @@ async def addclass(ctx,*,className):
                 specDict['year'] = userC2
 
                 usedEmo = []
-                for category in modulesDict:
-                    for year in modulesDict[category]: #{"1":[{}],}
-                        for list in modulesDict[category][year]:
-                            for module in list:
-                                usedEmo.append(module["emoji"])
+
                 
                 print(usedEmo)
 
         except asyncio.TimeoutError:
-            await ctx.send("Terminated!")
+            await ctx.send("Terminated!")'''
 
     except asyncio.TimeoutError:
         await ctx.send("Terminated!")

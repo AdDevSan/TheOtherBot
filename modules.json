@@ -1,19 +1,10 @@
-{"Math/Technology":{"1": ["MTH015", "MTH023"],
-                    "2": ["MTH069"],
-                    "3": [],
-                    "4": []
-    },
-"Languages": {"1": ["CLT023"],
-              "2": [],
-              "3": [],
-              "4": []
+{   "MTH015":{"category":"Math & Technology",
+    "year": 1,
+    "emoji": ""
+        },
+    "MTH025":{"category":"Math & Technology",
+              "year":1,
+              "emoji":""
+        }
 
-    },
-"Others": {"1": ["SCI001"],
-           "2": [],
-           "3": [],
-           "4": []
-
-    }
-
-}
+}   
