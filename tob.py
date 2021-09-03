@@ -432,17 +432,23 @@ async def addclass(ctx,*,className):
     #TODO: append class to json file
     def check(m):
         return m.author == ctx.author and len(m.content) == 1
-
+    
+    def checkYear(m):
+        condition1 = (m.author == ctx.author and len(m.content) == 1)
+        condition2 = (int(m.content) > 0 and int(m.content) <= 4) 
+        return condition1 and condition2
     #waits for author message reply
     try:
         userM1 = await client.wait_for('message', check=check, timeout=20)
         userC1 = userM1.content
+        proceed = True #first declare
+
         try:
             specDict['category'] = menu1[userC1]
             print(specDict)
-            await ctx.send("What Year?")
+            proceed = True
 
-        
+        #This checks if option chosen is add new category or isn't valid
         except KeyError:
             print(specDict)
             print(f"{userC1}=={len(catList)+1}, {int(userC1) == len(catList)+1}")
@@ -460,18 +466,31 @@ async def addclass(ctx,*,className):
                             specDict['category'] = userNewCatC
                             await ctx.send(f"New Category {userNewCatC} confirmed!")
                             print(specDict)
+                            proceed = True
+
                         else:
                             await ctx.send("Confirm did not match, please try again from the beginning!")
+                            proceed = False
                     except asyncio.TimeoutError:
                         await ctx.send("Terminated!")
-            
+                        proceed = False
                 except asyncio.TimeoutError:
                     await ctx.send("Terminated!")
+                    proceed = False
             
             else:
                 await ctx.send("Invalid Option !")
-        
-        
+                proceed = False
+
+        #continue with year here
+        if proceed:
+            await ctx.send("What Year?")
+            try:
+                yearIN = await client.wait_for('message', check=checkYear, timeout=20)
+                specDict['year'] = int(yearIN.content)
+                await ctx.send(specDict)
+            except asyncio.TimeoutError:
+                    await ctx.send("Terminated!")
         '''         
         try: 
             userM2 = await client.wait_for('message', check=check, timeout=20)
