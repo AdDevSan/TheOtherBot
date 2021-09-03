@@ -1,10 +1,10 @@
 {   "MTH015":{"category":"Math & Technology",
     "year": 1,
-    "emoji": ""
+    "emoji": 0
         },
     "MTH025":{"category":"Math & Technology",
               "year":1,
-              "emoji":""
+              "emoji":2
         }
 
 }   

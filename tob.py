@@ -53,7 +53,7 @@ numdict = ((0,':zero:'),(1,':one:'), (2, ':two:'),(3,':three:'),(4,':four:'),(5,
             (6,':six:'),(7,':seven:'),(8,':eight:'),(9,':nine:'))
 emojiList = [
         '😀', '🥰', '😴', '🤓', '🤮', '🤬', '😨', '🤑', '😫', '😎',
-    '🐒','🐕','🐎','🐪','🐁','🐘','🦘','🦈','🐓','🐝','👀','🦴','👩🏿','‍🤝','🧑','🏾','👱🏽','‍♀','🎞','🎨','⚽',
+    '🐒','🐕','🐎','🐪','🐁','🐘','🦘','🦈','🐓','🐝','👀','🦴','👩🏿','‍🤝','🧑','🏾','👱🏽','🎞','🎨','⚽',
     '🍕','🍗','🍜','☕','🍴','🍉','🍓','🌴','🌵','🛺','🚲','🛴','🚉','🚀','✈','🛰','🚦','🏳','‍🌈','🌎','🧭',
     '🔥','❄','🌟','🌞','🌛','🌝','🌧','🧺','🧷','🪒','⛲','🗼','🕌','👁','‍🗨','💬','™','💯','🔕','💥','❤',
 ]
@@ -63,7 +63,7 @@ emojiList = [
 @client.event
 async def on_ready():
     print("bot is ready...")
-
+    print(len(emojiList))
     global TOS, rY1, rY2, rY3, rY4, rM, rO, cY1, cY2, cY3, cY4, cM, cO
     TOS = client.get_guild(758958473424797738)
     rY1 = TOS.get_role(759014288043671602)
@@ -402,7 +402,9 @@ async def addcrr(ctx):
 @client.command()
 @has_permissions(administrator=True)
 async def addclass(ctx,*,className):
-    specDict = {"category":None,
+    modulesDict = json.load(open('modules.json', 'r'))
+    specDict = {"name":className,
+                "category":None,
                 "year":None,
                 "emoji":None
                 }
@@ -416,6 +418,8 @@ async def addclass(ctx,*,className):
     #appends unique categories into catList
     for module in modulesDict:
         cat = modulesDict[module]['category']
+
+        #if category in dictionary not yet in catlist, catlist gets appended category
         try:
             catList.index(cat)
         except ValueError:
@@ -489,27 +493,49 @@ async def addclass(ctx,*,className):
                 yearIN = await client.wait_for('message', check=checkYear, timeout=20)
                 specDict['year'] = int(yearIN.content)
                 await ctx.send(specDict)
+
+                #TODO: get emoji from dict put in exEmojilist
+                #TODO: copy emoji emojiList to emoList and remove all emoji in exEmoList
+                emoList = []
+
+                for module in modulesDict:
+                    innerDict = modulesDict[module]
+                    await ctx.send(f"{innerDict['category']} == {specDict['category']}")
+                    if innerDict['category'] == specDict['category']:
+                           
+                        emoList.append(innerDict['emoji'])
+                        await ctx.send(emojiList[innerDict['emoji']])
+                        
+                
+                rangeList = []
+                for i in range(72):
+                    rangeList.append(i)
+                for i in emoList:
+                    rangeList.remove(i)
+                randomVar = random.choice(rangeList)
+                print(randomVar)
+                
+                specDict['emoji'] = randomVar
+               
+               
+                #TODO: WORK FROM HERE
+                #TODO: update specDict to modules.json 
+                #TODO: make new role and channel in server
+                #TODO: update reaction roles embed
             except asyncio.TimeoutError:
                     await ctx.send("Terminated!")
-        '''         
-        try: 
-            userM2 = await client.wait_for('message', check=check, timeout=20)
-            userC2 = userM2.content
-            if int(userC2)<=4 and int(userC2) >0:
-                specDict['year'] = userC2
-
-                usedEmo = []
-
-                
-                print(usedEmo)
-
-        except asyncio.TimeoutError:
-            await ctx.send("Terminated!")'''
 
     except asyncio.TimeoutError:
         await ctx.send("Terminated!")
     #TODO: create class channel
     #TODO: create class role
+
+@client.command()
+async def demo(ctx):
+
+    x = modulesDict["MTH015"]['emoji']
+    print(x)
+    await ctx.send(emoji.emojize(f':{x}:', use_aliases=True))
 
 
 
