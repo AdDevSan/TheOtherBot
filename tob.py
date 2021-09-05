@@ -539,6 +539,7 @@ async def addclass(ctx,*,className):
                 #make new role
                 newRole = await ctx.guild.create_role(name=specDict['name'], colour=discord.Colour(0xE91E63) )
                 specDict['role_id'] = newRole.id
+                await ctx.send(f"{specDict['name']} role created! (id:{newRole.id})")
                 #make channel
                 modCategory = discord.utils.get(TOS.categories, name = "Modules")
                 newChannel = await modCategory.create_text_channel(specDict['name'])
@@ -551,6 +552,7 @@ async def addclass(ctx,*,className):
                 await newChannel.set_permissions(newRole, view_channel = True)
                 await newChannel.set_permissions(allClassesRole, view_channel = True)
                 
+                await ctx.send(f"{specDict['name']} text channel created! (id:{newChannel.id})" )
                 
                 #await client.create_role(TOS, name="NewClass", colour=discord.Colour(0xffffff))
 
@@ -562,6 +564,7 @@ async def addclass(ctx,*,className):
                                                 "channel":specDict['channel']
                                             }
                 json.dump(modulesDict, open('modules.json','w'))
+                await ctx.send("modules.json updated!")
                 #TODO: update reaction roles embed
 
 
