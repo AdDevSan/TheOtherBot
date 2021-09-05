@@ -2,8 +2,9 @@ import asyncio
 import discord
 import emoji
 import json
+import random
 from discord.ext import commands
-from discord.ext.commands import has_permissions, MissingPermissions
+from discord.ext.commands import has_permissions, CheckFailure
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
@@ -13,7 +14,7 @@ variablesr = open('variables.json','r')
 #dictionaries
 allChannelID = json.load(open('channel_id.json','r'))
 variablesDict = json.load(variablesr)
-
+modulesDict = json.load(open('modules.json', 'r'))
 #------------------------------------------------------
 #Global Variables
 TOS = None
@@ -25,13 +26,12 @@ year_roles = {"1️⃣": 759014288043671602,
                 "💡": 880688917895065630,
                 "🖇️": 880689672307740672}
 
-rY1 = ""
-rY2 = ""
-rY3 = ""
-rY4 = ""
-rM = ""
-rO = ""
-
+rY1 = None
+rY2 = None
+rY3 = None
+rY4 = None
+rM = None
+rO = None
 cY1 =  0
 cY2 =  0                                
 cY3 =  0
@@ -47,6 +47,17 @@ cO = 0
 client = commands.Bot(command_prefix='$',intents=discord.Intents.all())
 client.remove_command("help")
 
+#list to refer to discord number emote
+numdict = ((0,':zero:'),(1,':one:'), (2, ':two:'),(3,':three:'),(4,':four:'),(5,':five:'),
+
+            (6,':six:'),(7,':seven:'),(8,':eight:'),(9,':nine:'))
+emojiList = [
+        '😀', '🥰', '😴', '🤓', '🤮', '🤬', '😨', '🤑', '😫', '😎',
+    '🐒','🐕','🐎','🐪','🐁','🐘','🦘','🦈','🐓','🐝','👀','🦴','👩🏿','‍🤝','🧑','🏾','👱🏽','🎞','🎨','⚽',
+    '🍕','🍗','🍜','☕','🍴','🍉','🍓','🌴','🌵','🛺','🚲','🛴','🚉','🚀','✈','🛰','🚦','🏳','‍🌈','🌎','🧭',
+    '🔥','❄','🌟','🌞','🌛','🌝','🌧','🧺','🧷','🪒','⛲','🗼','🕌','👁','‍🗨','💬','™','💯','🔕','💥','❤',
+]
+
 #------------------------------------------------------
 #Tells if bot is ready
 @client.event
@@ -56,6 +67,7 @@ async def on_ready():
     global TOS, rY1, rY2, rY3, rY4, rM, rO, cY1, cY2, cY3, cY4, cM, cO
     TOS = client.get_guild(758958473424797738)
     rY1 = TOS.get_role(759014288043671602)
+
     rY2 = TOS.get_role(759014527211143178)
     rY3 = TOS.get_role(759014621473538070)
     rY4 = TOS.get_role(759014693057855518)
@@ -99,7 +111,7 @@ async def on_raw_reaction_add(payload):
     yearReactMessage = variablesDict["year_react_message"]
 
 
-    #Role Giver in Year Roles Embed
+    #Role Giver in Year Roles Embed------------------------------------------------------
     if payload.message_id== yearReactMessage:
 
         m = await client.get_channel(payload.channel_id).fetch_message(yearReactMessage)
@@ -230,11 +242,7 @@ async def course(ctx,*,roleIN):
     embed.set_footer(text=f"requested by - @{ctx.message.author.name}   |   react to a role accordingly")
     count = 0
     valid = False
-    #list to refer to discord number emote
-    numdict = ((0,':zero:'),(1,':one:'), (2, ':two:'),(3,':three:'),(4,':four:'),(5,':five:'),
-
-               (6,':six:'),(7,':seven:'),(8,':eight:'),(9,':nine'))
-
+    
     #EMOLIST-----------------------
     emolist = []
 
@@ -349,6 +357,194 @@ async def course(ctx,*,roleIN):
             editEmbed2.set_footer(text=f"requested by - @{ctx.message.author.name}")
             await justSent.edit(embed=editEmbed2)
             await justSent.clear_reactions()
+
+
+
+@client.command()
+@has_permissions(administrator=True)
+async def addclass(ctx,*,className):
+    modulesDict = json.load(open('modules.json', 'r'))
+    specDict = {"name":className,
+                "category":None,
+                "year":None,
+                "emoji":None
+                }
+    #TODO: add conditionals
+    await ctx.send("Select Category:")
+
+    count = 1
+    menu1 = {}
+    catList = []
+
+    #appends unique categories into catList
+    for module in modulesDict:
+        cat = modulesDict[module]['category']
+
+        #if category in dictionary not yet in catlist, catlist gets appended category
+        try:
+            catList.index(cat)
+        except ValueError:
+            catList.append(cat)
+    
+    #sends category choices to discord
+    for i in catList:
+        await ctx.send(f"{count}. {i}")
+        menu1[f"{count}"] = f"{i}"
+        count += 1
+
+    await ctx.send(f"{count}. add new category")
+
+
+    #TODO: append class to json file
+    def check(m):
+        return m.author == ctx.author and len(m.content) == 1
+    
+    def checkYear(m):
+        condition1 = (m.author == ctx.author and len(m.content) == 1)
+        condition2 = (int(m.content) > 0 and int(m.content) <= 4) 
+        return condition1 and condition2
+    #waits for author message reply
+    try:
+        userM1 = await client.wait_for('message', check=check, timeout=20)
+        userC1 = userM1.content
+        proceed = True #first declare
+
+        #
+        try:
+            #checks if userC1 (user choice) is part of menu1 (dictionary)
+            specDict['category'] = menu1[userC1]
+
+            proceed = True
+
+        #This checks if option chosen is add new category or isn't valid
+        except KeyError:
+
+
+            
+            #if userC1 is last choice of menu1
+            if int(userC1) == len(catList)+1:
+                await ctx.send("Enter New Category:")
+
+                try: #waits for user reply on new category name
+                    userNewCat = await client.wait_for('message', check=None, timeout=20)
+                    userNewCatC = userNewCat.content
+
+                    #add confirmation feature here
+                    await ctx.send(f"type \"{userNewCatC}\" again to confirm new category:")
+                    try:
+                        catConfirm = await client.wait_for('message', check=None, timeout=20)
+                        
+                        #if confirmation successful
+                        if catConfirm.content == userNewCatC:
+                            
+                            specDict['category'] = userNewCatC
+                            await ctx.send(f"New Category {userNewCatC} confirmed!")
+             
+                            proceed = True
+
+                        #if confirmation fails
+                        else:
+                            await ctx.send("Confirm did not match, please try again from the beginning!")
+                            proceed = False
+
+                    #if timeout
+                    except asyncio.TimeoutError:
+                        await ctx.send("Terminated!")
+                        proceed = False
+                except asyncio.TimeoutError:
+                    await ctx.send("Terminated!")
+                    proceed = False
+            
+            #if userC1 is out of bounds
+            else:
+                await ctx.send("Invalid Option !")
+                proceed = False
+
+        #continue with year here
+        if proceed:
+            await ctx.send("What Year?")
+
+            try: #waits for user response on year value
+                yearIN = await client.wait_for('message', check=checkYear, timeout=20)
+                specDict['year'] = int(yearIN.content)
+     
+
+               
+                emoList = []
+
+                #appends all emoji value from dictionary where items match the new class category
+                for module in modulesDict:
+                    innerDict = modulesDict[module]
+                  
+                    if innerDict['category'] == specDict['category']:
+                           
+                        emoList.append(innerDict['emoji'])
+                        
+                        
+                
+                #makes rangeList - a list that contains the available choices where 1 value
+                #will then be randomly drawn
+                rangeList = []
+                for i in range(72):
+                    rangeList.append(i)
+                for i in emoList:
+                    rangeList.remove(i)
+                randomVar = random.choice(rangeList)
+
+                
+                #enters the randomly drawn emoji value in specDict
+                specDict['emoji'] = randomVar
+
+               
+                
+                #make new role
+                newRole = await ctx.guild.create_role(name=specDict['name'], colour=discord.Colour(0xE91E63) )
+                specDict['role_id'] = newRole.id
+                await ctx.send(f"{specDict['name']} role created! (id:{newRole.id})")
+                #make channel
+                modCategory = discord.utils.get(TOS.categories, name = "Modules")
+                newChannel = await modCategory.create_text_channel(specDict['name'])
+                specDict['channel'] = newChannel.id
+
+                #set channel permissions to new class role and all classes
+                
+                allClassesRole = TOS.get_role(variablesDict['all_classes_role'])
+                await newChannel.set_permissions(TOS.default_role, view_channel=False)
+                await newChannel.set_permissions(newRole, view_channel = True)
+                await newChannel.set_permissions(allClassesRole, view_channel = True)
+                
+                await ctx.send(f"{specDict['name']} text channel created! (id:{newChannel.id})" )
+                
+                #await client.create_role(TOS, name="NewClass", colour=discord.Colour(0xffffff))
+
+                #update specDict to modules.json 
+                modulesDict[specDict['name']] = {"category": specDict["category"],
+                                                "year":specDict["year"],
+                                                "emoji":specDict["emoji"],
+                                                "role":specDict["role_id"],
+                                                "channel":specDict['channel']
+                                            }
+                json.dump(modulesDict, open('modules.json','w'))
+                await ctx.send("modules.json updated!")
+                #TODO: update reaction roles embed
+
+
+
+            except asyncio.TimeoutError:
+                    await ctx.send("Terminated!")
+
+    except asyncio.TimeoutError:
+        await ctx.send("Terminated!")
+
+
+@client.command()
+async def demo(ctx):
+
+    await ctx.channel.set_permissions(TOS.default_role, view_channel=False)
+    await ctx.send("done")
+
+
+
 #--------------------------------------------------------
 client.run('NzU5MDA2OTE4NTYyOTM4ODkx.X23ORw.QLjkR8jXZk9Lb0lVM4XcP65CUtQ')
 
