@@ -63,7 +63,7 @@ emojiList = [
 @client.event
 async def on_ready():
     print("bot is ready...")
-    print(len(emojiList))
+
     global TOS, rY1, rY2, rY3, rY4, rM, rO, cY1, cY2, cY3, cY4, cM, cO
     TOS = client.get_guild(758958473424797738)
     rY1 = TOS.get_role(759014288043671602)
@@ -360,12 +360,12 @@ async def course(ctx,*,roleIN):
             await justSent.clear_reactions()
 
 
-'''@client.command()
+@client.command()
 @has_permissions(administrator = True)
 async def addcrr(ctx):
-    
+    modulesDict = json.load(open('modules.json', 'r'))
 
-    reactionRolesChannel = TOS.get_channel(allChannelID['bot-test'])
+    '''reactionRolesChannel = TOS.get_channel(allChannelID['bot-test'])
     sampleList = []
     #TODO: Function to send embeds and add reactions
     for key in modulesDict:
@@ -430,7 +430,7 @@ async def addclass(ctx,*,className):
         await ctx.send(f"{count}. {i}")
         menu1[f"{count}"] = f"{i}"
         count += 1
-        print(menu1)
+
     await ctx.send(f"{count}. add new category")
 
 
@@ -458,7 +458,7 @@ async def addclass(ctx,*,className):
         #This checks if option chosen is add new category or isn't valid
         except KeyError:
 
-            print(f"{userC1}=={len(catList)+1}, {int(userC1) == len(catList)+1}")
+
             
             #if userC1 is last choice of menu1
             if int(userC1) == len(catList)+1:
@@ -478,7 +478,7 @@ async def addclass(ctx,*,className):
                             
                             specDict['category'] = userNewCatC
                             await ctx.send(f"New Category {userNewCatC} confirmed!")
-                            print(specDict)
+             
                             proceed = True
 
                         #if confirmation fails
@@ -506,7 +506,7 @@ async def addclass(ctx,*,className):
             try: #waits for user response on year value
                 yearIN = await client.wait_for('message', check=checkYear, timeout=20)
                 specDict['year'] = int(yearIN.content)
-                await ctx.send(specDict)
+     
 
                
                 emoList = []
@@ -514,11 +514,11 @@ async def addclass(ctx,*,className):
                 #appends all emoji value from dictionary where items match the new class category
                 for module in modulesDict:
                     innerDict = modulesDict[module]
-                    await ctx.send(f"{innerDict['category']} == {specDict['category']}")
+                  
                     if innerDict['category'] == specDict['category']:
                            
                         emoList.append(innerDict['emoji'])
-                        await ctx.send(emojiList[innerDict['emoji']])
+                        
                         
                 
                 #makes rangeList - a list that contains the available choices where 1 value
@@ -529,16 +529,12 @@ async def addclass(ctx,*,className):
                 for i in emoList:
                     rangeList.remove(i)
                 randomVar = random.choice(rangeList)
-                print(randomVar)
+
                 
                 #enters the randomly drawn emoji value in specDict
                 specDict['emoji'] = randomVar
-               
-               
-                #TODO: WORK FROM HERE
 
                
-                
                 
                 #make new role
                 newRole = await ctx.guild.create_role(name=specDict['name'], colour=discord.Colour(0xE91E63) )
@@ -569,7 +565,7 @@ async def addclass(ctx,*,className):
                 #TODO: update reaction roles embed
 
 
-                
+
             except asyncio.TimeoutError:
                     await ctx.send("Terminated!")
 
