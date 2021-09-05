@@ -425,6 +425,7 @@ async def addclass(ctx,*,className):
         except ValueError:
             catList.append(cat)
     
+    #sends category choices to discord
     for i in catList:
         await ctx.send(f"{count}. {i}")
         menu1[f"{count}"] = f"{i}"
@@ -447,34 +448,45 @@ async def addclass(ctx,*,className):
         userC1 = userM1.content
         proceed = True #first declare
 
+        #
         try:
+            #checks if userC1 (user choice) is part of menu1 (dictionary)
             specDict['category'] = menu1[userC1]
-            print(specDict)
+
             proceed = True
 
         #This checks if option chosen is add new category or isn't valid
         except KeyError:
-            print(specDict)
+
             print(f"{userC1}=={len(catList)+1}, {int(userC1) == len(catList)+1}")
+            
+            #if userC1 is last choice of menu1
             if int(userC1) == len(catList)+1:
                 await ctx.send("Enter New Category:")
-                try:
+
+                try: #waits for user reply on new category name
                     userNewCat = await client.wait_for('message', check=None, timeout=20)
                     userNewCatC = userNewCat.content
+
                     #add confirmation feature here
                     await ctx.send(f"type \"{userNewCatC}\" again to confirm new category:")
                     try:
                         catConfirm = await client.wait_for('message', check=None, timeout=20)
+                        
+                        #if confirmation successful
                         if catConfirm.content == userNewCatC:
-
+                            
                             specDict['category'] = userNewCatC
                             await ctx.send(f"New Category {userNewCatC} confirmed!")
                             print(specDict)
                             proceed = True
 
+                        #if confirmation fails
                         else:
                             await ctx.send("Confirm did not match, please try again from the beginning!")
                             proceed = False
+
+                    #if timeout
                     except asyncio.TimeoutError:
                         await ctx.send("Terminated!")
                         proceed = False
@@ -482,6 +494,7 @@ async def addclass(ctx,*,className):
                     await ctx.send("Terminated!")
                     proceed = False
             
+            #if userC1 is out of bounds
             else:
                 await ctx.send("Invalid Option !")
                 proceed = False
@@ -489,15 +502,16 @@ async def addclass(ctx,*,className):
         #continue with year here
         if proceed:
             await ctx.send("What Year?")
-            try:
+
+            try: #waits for user response on year value
                 yearIN = await client.wait_for('message', check=checkYear, timeout=20)
                 specDict['year'] = int(yearIN.content)
                 await ctx.send(specDict)
 
-                #TODO: get emoji from dict put in exEmojilist
-                #TODO: copy emoji emojiList to emoList and remove all emoji in exEmoList
+               
                 emoList = []
 
+                #appends all emoji value from dictionary where items match the new class category
                 for module in modulesDict:
                     innerDict = modulesDict[module]
                     await ctx.send(f"{innerDict['category']} == {specDict['category']}")
@@ -507,6 +521,8 @@ async def addclass(ctx,*,className):
                         await ctx.send(emojiList[innerDict['emoji']])
                         
                 
+                #makes rangeList - a list that contains the available choices where 1 value
+                #will then be randomly drawn
                 rangeList = []
                 for i in range(72):
                     rangeList.append(i)
@@ -515,29 +531,57 @@ async def addclass(ctx,*,className):
                 randomVar = random.choice(rangeList)
                 print(randomVar)
                 
+                #enters the randomly drawn emoji value in specDict
                 specDict['emoji'] = randomVar
                
                
                 #TODO: WORK FROM HERE
-                #TODO: update specDict to modules.json 
-                #TODO: make new role and channel in server
+
+               
+                
+                
+                #make new role
+                newRole = await ctx.guild.create_role(name=specDict['name'], colour=discord.Colour(0xE91E63) )
+                specDict['role_id'] = newRole.id
+                #make channel
+                modCategory = discord.utils.get(TOS.categories, name = "Modules")
+                newChannel = await modCategory.create_text_channel(specDict['name'])
+                specDict['channel'] = newChannel.id
+
+                #set channel permissions to new class role and all classes
+                
+                allClassesRole = TOS.get_role(variablesDict['all_classes_role'])
+                await newChannel.set_permissions(TOS.default_role, view_channel=False)
+                await newChannel.set_permissions(newRole, view_channel = True)
+                await newChannel.set_permissions(allClassesRole, view_channel = True)
+                
+                
+                #await client.create_role(TOS, name="NewClass", colour=discord.Colour(0xffffff))
+
+                #update specDict to modules.json 
+                modulesDict[specDict['name']] = {"category": specDict["category"],
+                                                "year":specDict["year"],
+                                                "emoji":specDict["emoji"],
+                                                "role":specDict["role_id"],
+                                                "channel":specDict['channel']
+                                            }
+                json.dump(modulesDict, open('modules.json','w'))
                 #TODO: update reaction roles embed
+
+
+                
             except asyncio.TimeoutError:
                     await ctx.send("Terminated!")
 
     except asyncio.TimeoutError:
         await ctx.send("Terminated!")
-    #TODO: create class channel
-    #TODO: create class role
+
 
 @client.command()
 async def demo(ctx):
 
-    x = modulesDict["MTH015"]['emoji']
-    print(x)
-    await ctx.send(emoji.emojize(f':{x}:', use_aliases=True))
-
-
+    await ctx.channel.set_permissions(TOS.default_role, view_channel=False)
+    await ctx.send("done")
 
 
 
