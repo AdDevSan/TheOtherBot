@@ -53,7 +53,7 @@ numdict = ((0,':zero:'),(1,':one:'), (2, ':two:'),(3,':three:'),(4,':four:'),(5,
             (6,':six:'),(7,':seven:'),(8,':eight:'),(9,':nine:'))
 emojiList = [
         '😀', '🥰', '😴', '🤓', '🤮', '🤬', '😨', '🤑', '😫', '😎',
-    '🐒','🐕','🐎','🐪','🐁','🐘','🦘','🦈','🐓','🐝','👀','🦴','👩🏿','‍🤝','🧑','🏾','👱🏽','🎞','🎨','⚽',
+    '🐒','🐕','🐎','🐪','🐁','🐘','🦘','🦈','🐓','🐝','👀','🦴','👩🏿','🤝','🧑','🏾','👱🏽','🎞','🎨','⚽',
     '🍕','🍗','🍜','☕','🍴','🍉','🍓','🌴','🌵','🛺','🚲','🛴','🚉','🚀','✈','🛰','🚦','🏳','‍🌈','🌎','🧭',
     '🔥','❄','🌟','🌞','🌛','🌝','🌧','🧺','🧷','🪒','⛲','🗼','🕌','👁','‍🗨','💬','™','💯','🔕','💥','❤',
 ]
@@ -364,7 +364,93 @@ async def course(ctx,*,roleIN):
 @has_permissions(administrator = True)
 async def addcrr(ctx):
     modulesDict = json.load(open('modules.json', 'r'))
+    
+    await ctx.send("Select Category:")
 
+    count = 1
+    menu1 = {}
+    catList = []
+
+    #appends unique categories into catList
+    for module in modulesDict:
+        cat = modulesDict[module]['category']
+
+        #if category in dictionary not yet in catlist, catlist gets appended category
+        try:
+            catList.index(cat)
+        except ValueError:
+            catList.append(cat)
+    
+    #sends category choices to discord
+    for i in catList:
+        await ctx.send(f"{count}. {i}")
+        menu1[f"{count}"] = i
+        count += 1
+
+    def check(m):
+        return m.author == ctx.author and len(m.content) == 1
+
+    try:
+        userM1 = await client.wait_for('message', check=check, timeout=20)
+        userC1 = userM1.content
+        try:
+            #checks if userC1 (user choice) is part of menu1 (dictionary)
+
+            userChoice = menu1[userC1]
+            print(menu1[userC1])
+            list1 = []
+            list2 = []
+            list3 = []
+            list4 = []
+            catModules = [list1,list2,list3,list4]
+            #TODO: get all modules from modulesDict with said category
+            count = 1
+
+            for module in modulesDict:
+                
+                mod = modulesDict[module]
+
+                if mod["category"] == userChoice:
+
+                    #sorting algorithm
+                    
+                    catModules[int(mod["year"])-1].append([module, mod["year"], mod["emoji"]])
+
+                    
+            for list in catModules:
+                list.sort()
+                
+
+            #TODO: build embed seperate by years
+            embed=discord.Embed(title="Class Roles", description=userChoice, color=0xE91E63)
+
+            yearVar = 1
+            emojiOptionsList = []
+            for i in catModules:
+                if len(i) >0:
+                    embed.add_field(name=f"Year {yearVar}", value="\u200b", inline=False)
+                    yearVar += 1
+                    for j in i:
+                        embed.add_field(name=f"\u2800\u2800{j[0]}    {emojiList[j[2]]}\u2800\u2800", value="\u200b", inline=True)
+                        emojiOptionsList.append(emojiList[j[2]])
+            
+            embed.set_footer(text=f"TheOtherSide 另一边 | 2020 | Can't find your module? Contact staff so we can add!")
+            classReactionMessage = await client.get_channel(allChannelID["bot-test"]).send(embed=embed) 
+            #TODO: save embed ID and save it in json
+            
+            #TODO: assign reaction emojis
+
+            for emoji in emojiOptionsList:
+                await classReactionMessage.add_reaction(emoji)
+
+
+        except KeyError:
+            await ctx.send("Choice is out of bounds!")
+    except asyncio.TimeoutError:
+        await ctx.send("Terminated!")
+
+
+    
     '''reactionRolesChannel = TOS.get_channel(allChannelID['bot-test'])
     sampleList = []
     #TODO: Function to send embeds and add reactions
@@ -448,9 +534,9 @@ async def addclass(ctx,*,className):
         userC1 = userM1.content
         proceed = True #first declare
 
-        #
+        
         try:
-            #checks if userC1 (user choice) is part of menu1 (dictionary)
+            #checks if userC1 (user choice) is part of menu1 (dictionary), sets it as specDict ['category']
             specDict['category'] = menu1[userC1]
 
             proceed = True
