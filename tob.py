@@ -437,10 +437,13 @@ async def addcrr(ctx):
             catList.append(cat)
     
     #sends category choices to discord
+
+    menu1Message = ""
     for i in catList:
-        await ctx.send(f"{count}. {i}")
+        menu1Message += f"{count}. {i}\n"
         menu1[f"{count}"] = i
         count += 1
+    await ctx.send(menu1Message)
 
     def check(m):
         return m.author == ctx.author and len(m.content) == 1
@@ -476,15 +479,17 @@ async def addcrr(ctx):
                 list.sort()
                 
 
-            #TODO: build embed seperate by years
+            #build embed seperate by years
             embed=discord.Embed(title="Class Roles", description=userChoice, color=0xE91E63)
 
             yearVar = 1
             emojiOptionsList = []
+            #checks if i (list1,list2,list3,list4) is not empty, adds Year field in embed
             for i in catModules:
                 if len(i) >0:
                     embed.add_field(name=f"Year {yearVar}", value="\u200b", inline=False)
                     yearVar += 1
+                    #for modules in i add field in embed
                     for j in i:
                         embed.add_field(name=f"\u2800\u2800{j[0]}    {emojiList[j[2]]}\u2800\u2800", value="\u200b", inline=True)
                         emojiOptionsList.append(emojiList[j[2]])
@@ -523,7 +528,7 @@ async def updatecrr(ctx):
         reactionEmbedID = modCatDict[modCat]
         reactionRolesChannel = client.get_channel(allChannelID['reaction-roles'])
         reactionEmbed = await reactionRolesChannel.fetch_message(reactionEmbedID)
-        await ctx.send(reactionEmbed)
+
 
         #copy and paste from addcrr
         userChoice = modCat
@@ -543,7 +548,7 @@ async def updatecrr(ctx):
             if mod["category"] == userChoice:
 
                 #sorting algorithm
-                    
+                
                 catModules[int(mod["year"])-1].append([module, mod["year"], mod["emoji"]])
 
                     
@@ -554,10 +559,14 @@ async def updatecrr(ctx):
 
         yearVar = 1
         emojiOptionsList = []
+
+        #checks if i (list1,list2,list3,list4) is not empty, adds Year field in embed
         for i in catModules:
             if len(i) >0:
                 embed.add_field(name=f"Year {yearVar}", value="\u200b", inline=False)
                 yearVar += 1
+
+                #for modules in i add field in embed
                 for j in i:
                     embed.add_field(name=f"\u2800\u2800{j[0]}    {emojiList[j[2]]}\u2800\u2800", value="\u200b", inline=True)
                     emojiOptionsList.append(emojiList[j[2]])
@@ -566,10 +575,12 @@ async def updatecrr(ctx):
 
         await reactionEmbed.edit(embed=embed)
         await reactionEmbed.clear_reactions()
+
+        #resends reactions
         for i in emojiOptionsList:
             await reactionEmbed.add_reaction(i)
             
-        await ctx.send(f"{emojiOptionsList}")
+
         await ctx.send(f"{modCat} embed updated!")
 
 
@@ -578,7 +589,7 @@ async def updatecrr(ctx):
 
 @client.command()
 @has_permissions(administrator=True)
-async def addclass(ctx,*,className):
+async def addclass2(ctx,*,className):
     modulesDict = json.load(open('modules.json', 'r'))
     className = className.upper()
     specDict = {"name":className,
@@ -604,12 +615,15 @@ async def addclass(ctx,*,className):
             catList.append(cat)
     
     #sends category choices to discord
+    menu1Message = ""
     for i in catList:
-        await ctx.send(f"{count}. {i}")
+        menu1Message += f"{count}. {i}\n"
         menu1[f"{count}"] = f"{i}"
         count += 1
-
-    await ctx.send(f"{count}. add new category")
+    menu1Message+=f"{count}. add new category"
+    
+    await ctx.send(menu1Message)
+    
 
 
     #TODO: append class to json file
