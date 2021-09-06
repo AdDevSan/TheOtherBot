@@ -511,37 +511,68 @@ async def addcrr(ctx):
 
 
     
-    '''reactionRolesChannel = TOS.get_channel(allChannelID['bot-test'])
-    sampleList = []
-    #TODO: Function to send embeds and add reactions
-    for key in modulesDict:
-
-        category = modulesDict[key]
-        count = 0
-        embed=discord.Embed(title=f"{key}", description="basically ur modules that generally requires more thinking & logic...", color=0xe91e63)
-        
-        for year in category: #year are keys, categories = modulesDict[key]
-
-            #if modules in years greater than 0
-            moduleList = category[year]
-            if len(moduleList) > 0:
-                embed.add_field(name=f"Year {year}", value="\u200b", inline=False)         
-                print(moduleList)
-
-            for i in moduleList: #category are the lists inside the nested dictionary
-
-                embed.add_field(name=f"{i}", value="\u200b", inline=True)
-                count +=1
-                print(F"count: {count}")
-        crr = await reactionRolesChannel.send(embed=embed)
-        sample = random.sample(emojiList, count)
-
-        for i in sample:
-            await crr.add_reaction(i)
-        sampleList.append(sample)
-    '''
-
+@client.command()
+@has_permissions(administrator = True)
+async def updatecrr(ctx):
+    modCatDict = json.load(open('modulecategories.json', 'r'))
+    modulesDict = json.load(open('modules.json', 'r'))
     
+
+    for modCat in modCatDict:
+
+        reactionEmbedID = modCatDict[modCat]
+        reactionRolesChannel = client.get_channel(allChannelID['reaction-roles'])
+        reactionEmbed = await reactionRolesChannel.fetch_message(reactionEmbedID)
+        await ctx.send(reactionEmbed)
+
+        #copy and paste from addcrr
+        userChoice = modCat
+
+        list1 = []
+        list2 = []
+        list3 = []
+        list4 = []
+        catModules = [list1,list2,list3,list4]
+        #get all modules from modulesDict with said category
+        count = 1
+
+        for module in modulesDict:
+                
+            mod = modulesDict[module]
+
+            if mod["category"] == userChoice:
+
+                #sorting algorithm
+                    
+                catModules[int(mod["year"])-1].append([module, mod["year"], mod["emoji"]])
+
+                    
+        for list in catModules:
+            list.sort()
+
+        embed=discord.Embed(title="Class Roles", description=modCat, color=0xE91E63)
+
+        yearVar = 1
+        emojiOptionsList = []
+        for i in catModules:
+            if len(i) >0:
+                embed.add_field(name=f"Year {yearVar}", value="\u200b", inline=False)
+                yearVar += 1
+                for j in i:
+                    embed.add_field(name=f"\u2800\u2800{j[0]}    {emojiList[j[2]]}\u2800\u2800", value="\u200b", inline=True)
+                    emojiOptionsList.append(emojiList[j[2]])
+            
+        embed.set_footer(text=f"TheOtherSide 另一边 | 2020 ")
+
+        await reactionEmbed.edit(embed=embed)
+        await reactionEmbed.clear_reactions()
+        for i in emojiOptionsList:
+            await reactionEmbed.add_reaction(i)
+            
+        await ctx.send(f"{emojiOptionsList}")
+        await ctx.send(f"{modCat} embed updated!")
+
+
     
 
 
