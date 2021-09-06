@@ -45,7 +45,7 @@ cO = 0
 
 
 client = commands.Bot(command_prefix='$',intents=discord.Intents.all())
-client.remove_command("help")
+client.remove_command("help") 
 
 #list to refer to discord number emote
 numdict = ((0,':zero:'),(1,':one:'), (2, ':two:'),(3,':three:'),(4,':four:'),(5,':five:'),
@@ -109,42 +109,41 @@ Year_Message = 759024782405926952
 @client.event
 async def on_raw_reaction_add(payload):
     yearReactMessage = variablesDict["year_react_message"]
+    if payload.channel_id==allChannelID["reaction-roles"]:
+        #Role Giver in Year Roles Embed------------------------------------------------------
+        if payload.message_id== yearReactMessage:
 
+            m = await client.get_channel(payload.channel_id).fetch_message(yearReactMessage)
+            emojiChoice = payload.emoji.name
+            getMember = TOS.get_member(payload.user_id)
 
-    #Role Giver in Year Roles Embed------------------------------------------------------
-    if payload.message_id== yearReactMessage:
+            memRoleList = getMember.roles
+            memRoleIDList = []
 
-        m = await client.get_channel(payload.channel_id).fetch_message(yearReactMessage)
-        emojiChoice = payload.emoji.name
-        getMember = TOS.get_member(payload.user_id)
+            #removes the reaction in embed message
+            await m.remove_reaction(emojiChoice, payload.member)
 
-        memRoleList = getMember.roles
-        memRoleIDList = []
+            for roles in memRoleList:
+                memRoleIDList.append(roles.id)
 
-        #removes the reaction in embed message
-        await m.remove_reaction(emojiChoice, payload.member)
+            #compares roles in dictionary year_roles with member roles, appends existing year roles to list
+            existingYearRoles = []
+            for key in year_roles:
+                for roleID in memRoleIDList:
+                    if year_roles[key] == roleID:
+                        existingYearRoles.append(memRoleList[memRoleIDList.index(roleID)])
+            
+            #removes all member roles that is in list existingYearRoles
+            if len(existingYearRoles) > 0:
+                for role in existingYearRoles:
+                    await getMember.remove_roles(role)
 
-        for roles in memRoleList:
-            memRoleIDList.append(roles.id)
+            #gives member the selected role
+            selectRoleID = year_roles[emojiChoice]
+            await getMember.add_roles(TOS.get_role(selectRoleID))
+        #------------------------------------------------------------------------------------------------
 
-        #compares roles in dictionary year_roles with member roles, appends existing year roles to list
-        existingYearRoles = []
-        for key in year_roles:
-            for roleID in memRoleIDList:
-                if year_roles[key] == roleID:
-                    existingYearRoles.append(memRoleList[memRoleIDList.index(roleID)])
-        
-        #removes all member roles that is in list existingYearRoles
-        if len(existingYearRoles) > 0:
-            for role in existingYearRoles:
-                await getMember.remove_roles(role)
-
-        #gives member the selected role
-        selectRole = TOS.get_role(year_roles[emojiChoice])
-        await getMember.add_roles(selectRole)
-
-        #pings user and send confirm message
-        await TOS.get_channel(allChannelID["bot-commands"]).send(f"<@!{payload.user_id}> role `{selectRole}` awarded!")
+    #TODO: role giver for module roles
 
 
             
@@ -196,7 +195,7 @@ async def addyrr(ctx):
     embed=discord.Embed(title="Year Roles", description="select a role according to your year of study to gain access to channels ! ", color=0x3900a5)
     embed.add_field(name="Year 1️⃣", value=f"count: {cY1}", inline=True)
     embed.add_field(name="Year 2️⃣", value=f"count: {cY2}", inline=True)
-    embed.add_field(name="Year 3️⃣", value=f"count: {cY3}", inline=True)
+    embed.add_field(name="Year 3️⃣", value=f"count: {cY3}", inline=True) 
     embed.add_field(name="Year 4️⃣", value=f"count: {cY4}", inline=True)
     embed.add_field(name="Masters/PhD 💡", value=f"count: {cM}", inline=True)
     embed.add_field(name="Other 🖇️", value=f"count: {cO}", inline=True)
@@ -242,7 +241,8 @@ async def course(ctx,*,roleIN):
     embed.set_footer(text=f"requested by - @{ctx.message.author.name}   |   react to a role accordingly")
     count = 0
     valid = False
-    
+
+
     #EMOLIST-----------------------
     emolist = []
 
@@ -359,7 +359,6 @@ async def course(ctx,*,roleIN):
             await justSent.clear_reactions()
 
 
-<<<<<<< HEAD
 @client.command()
 @has_permissions(administrator = True)
 async def addcrr(ctx):
@@ -484,8 +483,6 @@ async def addcrr(ctx):
     
     
 
-=======
->>>>>>> master
 
 @client.command()
 @has_permissions(administrator=True)

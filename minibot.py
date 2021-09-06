@@ -6,7 +6,7 @@ client.remove_command("help")
 async def on_ready():
     print("bot is ready...")
 
-
+    
 
 
 
