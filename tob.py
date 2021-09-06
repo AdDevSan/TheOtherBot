@@ -139,13 +139,69 @@ async def on_raw_reaction_add(payload):
                     await getMember.remove_roles(role)
 
             #gives member the selected role
-            selectRoleID = year_roles[emojiChoice]
-            await getMember.add_roles(TOS.get_role(selectRoleID))
+            selectRole = TOS.get_role(year_roles[emojiChoice])
+            await getMember.add_roles(selectRole)
+
+            #pings user and send confirm message
+            await TOS.get_channel(allChannelID["bot-commands"]).send(f"<@!{payload.user_id}> role `{selectRole}` awarded!")
         #------------------------------------------------------------------------------------------------
 
-    #TODO: role giver for module roles
+        #TODO: role giver for module roles
+        else:
+            modCatDict = json.load(open('modulecategories.json', 'r'))
+
+            #for keys in modulecategories,checks if something in modulecategories matches payload message
+            for category in modCatDict:
+                catID = modCatDict[category]
+                if catID == payload.message_id:
+                    emojiChoice = payload.emoji.name
+                    
+                    #gets emoji position in emojiList and saves it as a emojiIndex
+                    emojiIndex = emojiList.index(emoji.emojize(f"{emojiChoice}",use_aliases=True))
+                    modulesDict = json.load(open('modules.json', 'r'))
+
+                    emojiMatch = []
+
+                    #for modules in modules.json, if emoji item matches emojiIndex, append said module onto emojiMatch list
+                    for module in modulesDict:
+                        mod = modulesDict[module]
+                        if mod['emoji'] == emojiIndex:
+                            emojiMatch.append([mod['category'], mod['role'], mod['emoji']])
+
+                        #for i in emojiMatch if item category matches embed category, award user with corresponding role
+                        for i in emojiMatch:
+                            if i[0] == category:
+                                selectRole = TOS.get_role(i[1])
+                                await  TOS.get_member(payload.user_id).add_roles(selectRole)
 
 
+@client.event
+async def on_raw_reaction_remove(payload):
+    if payload.channel_id==allChannelID["reaction-roles"]:
+        modCatDict = json.load(open('modulecategories.json', 'r'))
+        #for keys in modulecategories,checks if something in modulecategories matches payload message
+        for category in modCatDict:
+            catID = modCatDict[category]
+            if catID == payload.message_id:
+                emojiChoice = payload.emoji.name
+                        
+                #gets emoji position in emojiList and saves it as a emojiIndex
+                emojiIndex = emojiList.index(emoji.emojize(f"{emojiChoice}",use_aliases=True))
+                modulesDict = json.load(open('modules.json', 'r'))
+
+                emojiMatch = []
+
+                #for modules in modules.json, if emoji item matches emojiIndex, append said module onto emojiMatch list
+                for module in modulesDict:
+                    mod = modulesDict[module]
+                    if mod['emoji'] == emojiIndex:
+                        emojiMatch.append([mod['category'], mod['role'], mod['emoji']])
+
+                            #for i in emojiMatch if item category matches embed category, award user with corresponding role
+                    for i in emojiMatch:
+                        if i[0] == category:
+                            selectRole = TOS.get_role(i[1])
+                            await  TOS.get_member(payload.user_id).remove_roles(selectRole)
             
   
 
@@ -396,7 +452,7 @@ async def addcrr(ctx):
             #checks if userC1 (user choice) is part of menu1 (dictionary)
 
             userChoice = menu1[userC1]
-            print(menu1[userC1])
+
             list1 = []
             list2 = []
             list3 = []
@@ -433,11 +489,16 @@ async def addcrr(ctx):
                         embed.add_field(name=f"\u2800\u2800{j[0]}    {emojiList[j[2]]}\u2800\u2800", value="\u200b", inline=True)
                         emojiOptionsList.append(emojiList[j[2]])
             
-            embed.set_footer(text=f"TheOtherSide 另一边 | 2020 | Can't find your module? Contact staff so we can add!")
-            classReactionMessage = await client.get_channel(allChannelID["bot-test"]).send(embed=embed) 
-            #TODO: save embed ID and save it in json
-            
-            #TODO: assign reaction emojis
+            embed.set_footer(text=f"TheOtherSide 另一边 | 2020 | Can't find your module? Contact staff so we can add it for you!")
+            classReactionMessage = await client.get_channel(allChannelID["reaction-roles"]).send(embed=embed) 
+            #save embed ID and save it in json
+      
+            catDict = json.load(open('modulecategories.json','r'))
+
+            catDict[userChoice] = classReactionMessage.id
+            json.dump(catDict, open('modulecategories.json','w'))
+
+            #assign reaction emojis
 
             for emoji in emojiOptionsList:
                 await classReactionMessage.add_reaction(emoji)
