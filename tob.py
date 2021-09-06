@@ -140,11 +140,11 @@ async def on_raw_reaction_add(payload):
                 await getMember.remove_roles(role)
 
         #gives member the selected role
-        selectRoleID = year_roles[emojiChoice]
-        await getMember.add_roles(TOS.get_role(selectRoleID))
-    #------------------------------------------------------------------------------------------------
+        selectRole = TOS.get_role(year_roles[emojiChoice])
+        await getMember.add_roles(selectRole)
 
-    #TODO: role giver for module roles
+        #pings user and send confirm message
+        await TOS.get_channel(allChannelID["bot-commands"]).send(f"<@!{payload.user_id}> role `{selectRole}` awarded!")
 
 
             
@@ -242,8 +242,7 @@ async def course(ctx,*,roleIN):
     embed.set_footer(text=f"requested by - @{ctx.message.author.name}   |   react to a role accordingly")
     count = 0
     valid = False
-
-
+    
     #EMOLIST-----------------------
     emolist = []
 
@@ -360,6 +359,7 @@ async def course(ctx,*,roleIN):
             await justSent.clear_reactions()
 
 
+<<<<<<< HEAD
 @client.command()
 @has_permissions(administrator = True)
 async def addcrr(ctx):
@@ -484,6 +484,8 @@ async def addcrr(ctx):
     
     
 
+=======
+>>>>>>> master
 
 @client.command()
 @has_permissions(administrator=True)
