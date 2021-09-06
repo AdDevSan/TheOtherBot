@@ -549,6 +549,7 @@ async def addcrr(ctx):
 @has_permissions(administrator=True)
 async def addclass(ctx,*,className):
     modulesDict = json.load(open('modules.json', 'r'))
+    className = className.upper()
     specDict = {"name":className,
                 "category":None,
                 "year":None,
@@ -694,6 +695,7 @@ async def addclass(ctx,*,className):
                 #set channel permissions to new class role and all classes
                 
                 allClassesRole = TOS.get_role(variablesDict['all_classes_role'])
+                await newChannel.edit(sync_permissions=True)
                 await newChannel.set_permissions(TOS.default_role, view_channel=False)
                 await newChannel.set_permissions(newRole, view_channel = True)
                 await newChannel.set_permissions(allClassesRole, view_channel = True)
@@ -711,8 +713,6 @@ async def addclass(ctx,*,className):
                                             }
                 json.dump(modulesDict, open('modules.json','w'))
                 await ctx.send("modules.json updated!")
-                #TODO: update reaction roles embed
-                #for embeds in category of new class
 
 
 
