@@ -197,7 +197,7 @@ async def on_raw_reaction_remove(payload):
                     if mod['emoji'] == emojiIndex:
                         emojiMatch.append([mod['category'], mod['role'], mod['emoji']])
 
-                            #for i in emojiMatch if item category matches embed category, award user with corresponding role
+                            #for i in emojiMatch if item category matches embed category, removes corresponding role
                     for i in emojiMatch:
                         if i[0] == category:
                             selectRole = TOS.get_role(i[1])
@@ -489,7 +489,7 @@ async def addcrr(ctx):
                         embed.add_field(name=f"\u2800\u2800{j[0]}    {emojiList[j[2]]}\u2800\u2800", value="\u200b", inline=True)
                         emojiOptionsList.append(emojiList[j[2]])
             
-            embed.set_footer(text=f"TheOtherSide 另一边 | 2020 | Can't find your module? Contact staff so we can add it for you!")
+            embed.set_footer(text=f"TheOtherSide 另一边 | 2020 ")
             classReactionMessage = await client.get_channel(allChannelID["reaction-roles"]).send(embed=embed) 
             #save embed ID and save it in json
       
@@ -712,6 +712,8 @@ async def addclass(ctx,*,className):
                 json.dump(modulesDict, open('modules.json','w'))
                 await ctx.send("modules.json updated!")
                 #TODO: update reaction roles embed
+                #for embeds in category of new class
+
 
 
 
