@@ -169,10 +169,10 @@ async def on_raw_reaction_add(payload):
                             emojiMatch.append([mod['category'], mod['role'], mod['emoji']])
 
                         #for i in emojiMatch if item category matches embed category, award user with corresponding role
-                        for i in emojiMatch:
-                            if i[0] == category:
-                                selectRole = TOS.get_role(i[1])
-                                await  TOS.get_member(payload.user_id).add_roles(selectRole)
+                    for i in emojiMatch:
+                        if i[0] == category:
+                            selectRole = TOS.get_role(i[1])
+                            await  TOS.get_member(payload.user_id).add_roles(selectRole)
 
 
 @client.event
@@ -198,10 +198,10 @@ async def on_raw_reaction_remove(payload):
                         emojiMatch.append([mod['category'], mod['role'], mod['emoji']])
 
                             #for i in emojiMatch if item category matches embed category, removes corresponding role
-                    for i in emojiMatch:
-                        if i[0] == category:
-                            selectRole = TOS.get_role(i[1])
-                            await  TOS.get_member(payload.user_id).remove_roles(selectRole)
+                for i in emojiMatch:
+                    if i[0] == category:
+                        selectRole = TOS.get_role(i[1])
+                        await  TOS.get_member(payload.user_id).remove_roles(selectRole)
             
   
 
@@ -589,7 +589,7 @@ async def updatecrr(ctx):
 
 @client.command()
 @has_permissions(administrator=True)
-async def addclass2(ctx,*,className):
+async def addclass(ctx,*,className):
     modulesDict = json.load(open('modules.json', 'r'))
     className = className.upper()
     specDict = {"name":className,
