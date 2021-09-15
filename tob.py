@@ -496,13 +496,14 @@ async def addcrr(ctx):
             
             embed.set_footer(text=f"TheOtherSide 另一边 | 2020 ")
             classReactionMessage = await client.get_channel(allChannelID["reaction-roles"]).send(embed=embed) 
+            await ctx.send(f"{userChoice} embed sent!")
             #save embed ID and save it in json
       
             catDict = json.load(open('modulecategories.json','r'))
 
             catDict[userChoice] = classReactionMessage.id
             json.dump(catDict, open('modulecategories.json','w'))
-
+            await ctx.send("modulecategories.json updated!")
             #assign reaction emojis
 
             for emoji in emojiOptionsList:
@@ -517,7 +518,7 @@ async def addcrr(ctx):
 
     
 @client.command()
-@has_permissions(administrator = True)
+@has_permissions(ban_members=True)
 async def updatecrr(ctx):
     modCatDict = json.load(open('modulecategories.json', 'r'))
     modulesDict = json.load(open('modules.json', 'r'))
@@ -588,7 +589,7 @@ async def updatecrr(ctx):
 
 
 @client.command()
-@has_permissions(administrator=True)
+@has_permissions(ban_members=True)
 async def addclass(ctx,*,className):
     modulesDict = json.load(open('modules.json', 'r'))
     className = className.upper()
